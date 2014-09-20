@@ -5,7 +5,7 @@ angular.module("applauseConfig", [])
 	"slideCount": true,
 	"counter": true,
 	"startFrom": 20,
-	"theme": "default"
+	"theme": "gild"
 })
 
 ;

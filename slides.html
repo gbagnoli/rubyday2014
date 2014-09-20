@@ -1,12 +1,5 @@
-<slide>
-  <h1>Applause</h1>
-  <h3>HTML presentations powered by Angular JS</h3>
-
-  <div class="key-wrapper">
-    <div><span class="key dark-keys">&#9658;</span> or <span class="key dark-keys">space</span> next slide</div>
-    <div><span class="key dark-keys">&#9668;</span> previous</div>
-    <div><span class="key dark-keys">esc</span> toggle "go to" popup</div>
-  </div>
+<slide class="cover">
+  <h1>Applause <span>HTML presentations powered by Angular JS</span> </h1>
 </slide>
 
 <slide>
@@ -36,15 +29,15 @@
 <slide>
   <h2>Code highlighting</h2>
   <div hljs>
-    applause.directive('slide', function (Appdata) {
-      return {
-        template: '<section class="slide" ng-transclude=""></section>',
-        restrict: 'EA',
-        transclude: true,
-        replace: true,
-        scope: {}
-      };
-    });
+# Variables and expressions.
+a = 10
+b = 3 * a + 2
+printf("%d %d\n", a, b);
+
+# Type is dynamic.
+b = "A string"
+c = 'Another String'
+print b + " and " + c + "\n"
   </div>
   <p>You just need to add the "hljs" attribute to your element: <code class="inline">&lt;div <strong>hljs</strong>&gt;your code here&lt;/div&gt;</code></p>
 </slide>
