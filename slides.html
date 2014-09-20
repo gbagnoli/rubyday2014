@@ -29,7 +29,7 @@
 <slide bg-img="snowflakes.jpg" credits="https://www.flickr.com/photos/amagill/4223790595/">
   <h2>What's wrong with my dev environment?</h2>
   <p>Youd development environment is probably</p>
-  <p>a beautiful, unique, <strong>snowflake</strong></p>
+  <p>a beautiful, unique <strong>snowflake</strong></p>
 </slide>
 
 <slide>
@@ -56,6 +56,7 @@
     <li>Operating system-level virtualization*</li>
     <li>runs multiple isolated <strong>linux</strong> systems</li>
     <li>on a single host, with a single kernel.</li>
+    <li>no <code class="inline">/sbin/init</code>, no device emulation</li>
     <li>Think them as <code class="inline">chroot</code> on steroids</li>
   </ul>
 
@@ -71,6 +72,45 @@
   <p class="light">* not a virtualization method, containers != VM</p>
 </slide>
 
+<slide>
+  <h2>Docker Images</h2>
+  <img class="center media fright" src='images/docker-images.png' alt='Docker Images'/>
+  <p>
+    <em>Portable</em>, <strong>read-only</strong> layers.
+  </p>
+  <p>
+    Images are composed at run-time to form the container root FS using an union filesystem.
+  </p>
+  <p>
+    Processes tricked to see the filesystem as R/W.
+  </p>
+  <p>
+    The writable layer is discarded if the container is not <strong>committed</strong>.
+  </p>
+  <p>
+    The read-only and portable properties are <strong>important</strong> as they
+    enable sharing (via the docker hub)
+  </p>
+</slide>
+
+<slide>
+  <h2>Docker Images (2)</h2>
+  <img class="center media fright" src='images/docker-dag.png' alt='Docker DAG'/>
+  <p>
+    Docker images form a <strong>D</strong>irect <strong>A</strong>cyclic <strong>G</strong>raph
+  </p>
+  <p>
+    Each layer is cached (possibly) reused by other images.
+  </p>
+  <p>
+    This means that if multiple images derive from <code class='inline'>ubuntu:14.04</code>
+    that particular image is shared by all of them (thus downloaded once)
+  </p>
+  <p>
+     Images are stored in the hub and dowloaded from them.
+  </p>
+</slide>
+<!--
 <slide>
   <h2>Why another presentation framework?</h2>
   <p>There are plenty of presentation frameworks made with HTML, CSS and Javascript around. So why we need another one?</p>
@@ -137,3 +177,4 @@ Add the "markdown" attribute to the slide element `<code class="inline">&lt;slid
   <img class="center media" src="images/slow-clap.gif" alt=""/>
   <p class="center">Follow me on twitter <a href="https://twitter.com/granze">@granze</a></p>
 </slide>
+-->

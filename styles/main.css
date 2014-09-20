@@ -620,7 +620,8 @@ blockquote {
   text-align: center; }
 
 .fright {
-  float: right; }
+  float: right;
+  margin-left: 10px; }
 
 .slide {
   padding-top: 120px;
