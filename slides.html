@@ -51,6 +51,7 @@
 
 <slide>
   <h2>Containers, uh?</h2>
+  <img class="center media fright" src='images/containers.jpg' alt='Containers'/>
 
   <ul>
     <li>Operating system-level virtualization*</li>
@@ -142,13 +143,50 @@ $ docker images --tree
         └─6c203838fd07 Virtual Size: 99.62 MB
           └─caca6ab42532 Virtual Size: 101.7 MB
             └─aa66fe9fc23c Virtual Size: 101.8 MB
-              └─440cf5792353 Virtual Size: 101.8 MB
-                └─70160537ca2e Virtual Size: 391.2 MB
-                  └─49b3fe478cd9 Virtual Size: 391.2 MB
-                    └─4046b11d27bb Virtual Size: 391.2 MB
+
                       └─b1cd74f30329 Virtual Size: 391.2 MB
                         └─9d0a3438646f Virtual Size: 391.2 MB
                           └─dd1f260c0731 Virtual Size: 391.2 MB Tags: mongo:2.6.4
+  </code>
+</slide>
+
+<slide>
+  <h2>Dockerfile</h2>
+  <pre>
+# Format: FROM    repository[:version]
+FROM       ubuntu:14.04
+
+# Format: MAINTAINER Name &lt;email@addr.ess&gt;
+MAINTAINER Giacomo Bagnoli &lt;giacomo@gild.com&gt;
+
+RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" \
+    &gt; /etc/apt/sources.list.d/ruby-ng.list && \
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C3173AA6 && \
+    apt-get update && \
+    apt-get install -y ruby2.1 && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
+  </pre>
+</slide>
+
+<slide>
+  <h2>Our first image</h2>
+  Build:
+  <code hljs>
+$ docker build --rm -t gild/ruby:2.1 .
+  </code>
+
+  <code hljs>
+$ docker images
+REPOSITORY                TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+gild/ruby                 2.1                 2a1d4e5c63c4        12 minutes ago      236.9 MB
+  </code>
+
+  Each directive in the <code class="inline">Dockerfile</code> adds a layer
+
+  <code hljs>
+└─96864a7d2df3 Virtual Size: 204.4 MB Tags: ubuntu:14.04
+  └─0890f008e37c Virtual Size: 204.4 MB                         # MAINTAINER
+    └─2a1d4e5c63c4 Virtual Size: 236.9 MB Tags: gild/ruby:2.1   # RUN
   </code>
 </slide>
 <!--
