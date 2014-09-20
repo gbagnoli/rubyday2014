@@ -4,7 +4,7 @@ angular.module("applauseConfig", [])
 	"progressBar": true,
 	"slideCount": true,
 	"counter": true,
-	"startFrom": 20,
+	"startFrom": 45,
 	"theme": "gild"
 })
 
