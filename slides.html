@@ -103,12 +103,53 @@
     Each layer is cached (possibly) reused by other images.
   </p>
   <p>
-    This means that if multiple images derive from <code class='inline'>ubuntu:14.04</code>
+    This means that if multiple images derive from <code class='inline'>debian:wheezy</code>
     that particular image is shared by all of them (thus downloaded once)
   </p>
   <p>
-     Images are stored in the hub and dowloaded from them.
+     Images are pushed/pull to/from the docker hub.
   </p>
+</slide>
+
+<slide>
+  <h2>Docker Images (3)</h2>
+  <code hljs>
+$ docker images
+REPOSITORY                TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+redis                     2.8.13              dd52dc9c8f76        9 minutes ago       98.44 MB
+mongo                     2.6.4               dd1f260c0731        12 minutes ago      391.2 MB
+debian                    wheezy              9cdcc6025135        18 hours ago        85.19 MB
+ubuntu                    14.04               96864a7d2df3        2 days ago          204.4 MB
+ubuntu                    12.04               ec966722cde4        2 days ago          103.8 MB
+  </code>
+</slide>
+
+<slide>
+  <h2>Docker Images (4)</h2>
+  <code hljs>
+$ docker images --tree
+└─511136ea3c5a Virtual Size: 0 B
+  └─b37448882294 Virtual Size: 85.19 MB
+    └─9cdcc6025135 Virtual Size: 85.19 MB Tags: debian:wheezy
+      ├─e365f7cdb352 Virtual Size: 85.52 MB
+      │ └─b15940870e43 Virtual Size: 85.52 MB
+
+      │             └─22ad4fc6b16f Virtual Size: 98.44 MB
+      │               └─bd1e22dd175d Virtual Size: 98.44 MB
+      │                 └─3b1ce200fdad Virtual Size: 98.44 MB
+      │                   └─dd52dc9c8f76 Virtual Size: 98.44 MB Tags: redis:2.8.13
+      └─49fd1ae472a8 Virtual Size: 85.52 MB
+        └─6c203838fd07 Virtual Size: 99.62 MB
+          └─caca6ab42532 Virtual Size: 101.7 MB
+            └─aa66fe9fc23c Virtual Size: 101.8 MB
+              └─440cf5792353 Virtual Size: 101.8 MB
+                └─70160537ca2e Virtual Size: 391.2 MB
+                  └─49b3fe478cd9 Virtual Size: 391.2 MB
+                    └─4046b11d27bb Virtual Size: 391.2 MB
+                      └─b1cd74f30329 Virtual Size: 391.2 MB
+                        └─9d0a3438646f Virtual Size: 391.2 MB
+                          └─dd1f260c0731 Virtual Size: 391.2 MB Tags: mongo:2.6.4
+  </code>
 </slide>
 <!--
 <slide>

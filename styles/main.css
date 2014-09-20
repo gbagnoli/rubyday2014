@@ -490,7 +490,8 @@ Monokai Sublime style. Derived from Monokai by noformnocontent http://nn.mit-lic
   padding: 0.5em;
   background: #23241f;
   color: #f8f8f2;
-  text-align: left; }
+  text-align: left;
+  font-size: 70%; }
 
 .hljs-tag {
   color: #f8f8f2; }
