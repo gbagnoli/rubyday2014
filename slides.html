@@ -5,11 +5,14 @@
 <slide markdown>
   ## `whoami`
 
-  Started fiddling with cgroups in 2009. Used `lxc` with `pacemaker` in production in 2010-2012.
+  Started exploring cgroups in 2009. Used `lxc` with `pacemaker` in production in 2010-2012.
 
   Excited by docker since day 1. Experimenting from June 2014 , hit prod in August.
 
-  Currently Backend Engineer at [Gild](http://www.gild.com), previously at [Amazon/A9](http://www.a9.com/) and [Asidev](https://twitter.com/asidev)
+  Currently Backend Engineer at [Gild](http://www.gild.com)
+
+  Previously at [Amazon](http://www.a9.com/) and [Asidev](https://twitter.com/asidev)
+
 
   * [Twitter: @gbagnoli](https://twitter.com/gbagnoli)
   * [Github: gbagnoli](https://github.com/gbagnoli)
@@ -21,6 +24,12 @@
   <p>Nothing in particular. It's <strong>not*</strong> broken, so let's fix it.</p>
   <img class="center media" src="images/streamline.png" alt="Streamline"/>
   <p class="light">* conditions apply</p>
+</slide>
+
+<slide bg-img="snowflakes.jpg" credits="https://www.flickr.com/photos/amagill/4223790595/">
+  <h2>What's wrong with my dev environment?</h2>
+  <p>Youd development environment is probably</p>
+  <p>a beautiful, unique, <strong>snowflake</strong></p>
 </slide>
 
 <slide>
@@ -40,8 +49,26 @@
   </ul>
 </slide>
 
-<slide markdown>
-  ## Containers, uh?
+<slide>
+  <h2>Containers, uh?</h2>
+
+  <ul>
+    <li>Operating system-level virtualization*</li>
+    <li>runs multiple isolated <strong>linux</strong> systems</li>
+    <li>on a single host, with a single kernel.</li>
+    <li>Think them as <code class="inline">chroot</code> on steroids</li>
+  </ul>
+
+  <p>&nbsp;</p>
+
+  <ul>
+    <li>Isolation provided by linux <code class="inline">cgroups</code> and <code class="inline">namespaces</code></li>
+    <li>Resource limiting and prioritization via <code class="inline">cgroups</code></li>
+    <li>Resource usage accounting via <code class="inline">cgroups</code></li>
+  </ul>
+
+  <p>&nbsp;</p>
+  <p class="light">* not a virtualization method, containers != VM</p>
 </slide>
 
 <slide>
