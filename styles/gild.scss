@@ -17,6 +17,12 @@ code {
   }
 }
 
+code[class*="language-"],
+pre[class*="language-"] {
+  font-size: 85%;
+  line-height: 1.1;
+}
+
 .center {
   text-align: center;
 }
