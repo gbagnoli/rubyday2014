@@ -7,7 +7,7 @@
 
   Started exploring cgroups in 2009. Used `lxc` with `pacemaker` in production in 2010-2012.
 
-  Excited by docker since day 1. Experimenting from June 2014 , hit prod in August.
+  Got excited by Docker since first release. Using it at work since June (in prod from August).
 
   Currently Backend Engineer at [Gild](http://www.gild.com)
 
@@ -28,8 +28,8 @@
 
 <slide bg-img="snowflakes.jpg" credits="https://www.flickr.com/photos/amagill/4223790595/">
   <h2>What's wrong with my dev environment?</h2>
-  <p class='big'>Youd development environment is probably <br/>
-  a beautiful, unique <strong>snowflake</strong></p>
+  <p class='big'>Youd development<br /> environment is probably <br/>
+  a beautiful, unique<br/> <strong>snowflake</strong></p>
 </slide>
 
 <slide>
@@ -74,7 +74,7 @@
 </slide>
 
 <slide>
-  <h2>Docker Images</h2>
+  <h2>Docker Images (0)</h2>
   <img class="center media fright" src='images/docker-images.png' alt='Docker Images'/>
   <p>
     <em>Portable</em>, <strong>read-only</strong> layers.
@@ -95,7 +95,7 @@
 </slide>
 
 <slide>
-  <h2>Docker Images (2)</h2>
+  <h2>Docker Images (1)</h2>
   <img class="center media fright" src='images/docker-dag.png' alt='Docker DAG'/>
   <p>
     Docker images form a <strong>D</strong>irect <strong>A</strong>cyclic <strong>G</strong>raph
@@ -113,7 +113,7 @@
 </slide>
 
 <slide>
-  <h2>Docker Images (3)</h2>
+  <h2>Docker Images (2)</h2>
 <code prism class='language-bash'>
 $ docker pull ubuntu:14.04
 $ docker pull ubuntu:12.04
@@ -122,17 +122,17 @@ $ docker pull debian:wheezy
 $ docker pull mongo:2.6.4
 
 $ docker images
-REPOSITORY                TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
-redis                     2.8.13              dd52dc9c8f76        9 minutes ago       98.44 MB
-mongo                     2.6.4               dd1f260c0731        12 minutes ago      391.2 MB
-debian                    wheezy              9cdcc6025135        18 hours ago        85.19 MB
-ubuntu                    14.04               96864a7d2df3        2 days ago          204.4 MB
-ubuntu                    12.04               ec966722cde4        2 days ago          103.8 MB
+REPOSITORY   TAG           IMAGE ID            CREATED             VIRTUAL SIZE
+redis        2.8.13        dd52dc9c8f76        9 minutes ago       98.44 MB
+mongo        2.6.4         dd1f260c0731        12 minutes ago      391.2 MB
+debian       wheezy        9cdcc6025135        18 hours ago        85.19 MB
+ubuntu       14.04         96864a7d2df3        2 days ago          204.4 MB
+ubuntu       12.04         ec966722cde4        2 days ago          103.8 MB
   </code>
 </slide>
 
 <slide>
-  <h2>Docker Images (4)</h2>
+  <h2>Docker Images (3)</h2>
   <code prism class='language-bash'>
 $ docker images --tree
 └─511136ea3c5a Virtual Size: 0 B
@@ -147,8 +147,6 @@ $ docker images --tree
       │                   └─dd52dc9c8f76 Virtual Size: 98.44 MB Tags: redis:2.8.13
       └─49fd1ae472a8 Virtual Size: 85.52 MB
         └─6c203838fd07 Virtual Size: 99.62 MB
-          └─caca6ab42532 Virtual Size: 101.7 MB
-            └─aa66fe9fc23c Virtual Size: 101.8 MB
 
                       └─b1cd74f30329 Virtual Size: 391.2 MB
                         └─9d0a3438646f Virtual Size: 391.2 MB
@@ -189,11 +187,11 @@ $ docker build --rm -t rubyday/ruby:2.1 .
 $ docker images --tree
 
 └─96864a7d2df3 Virtual Size: 204.4 MB Tags: ubuntu:14.04
-  └─8f1b6341c5be Virtual Size: 204.4 MB                                   # MAINTAINER
-    └─d323cc59da91 Virtual Size: 204.4 MB                                 # RUN
-      └─724a6664d97a Virtual Size: 204.4 MB                               # RUN
-        └─8614dab05fbe Virtual Size: 224.8 MB                             # RUN
-          └─d7ae4a198781 Virtual Size: 257.2 MB Tags: rubyday/ruby:2.1    # RUN
+  └─8f1b6341c5be Virtual Size: 204.4 MB                                 # MAINTAINER
+    └─d323cc59da91 Virtual Size: 204.4 MB                               # RUN
+      └─724a6664d97a Virtual Size: 204.4 MB                             # RUN
+        └─8614dab05fbe Virtual Size: 224.8 MB                           # RUN
+          └─d7ae4a198781 Virtual Size: 257.2 MB Tags: rubyday/ruby:2.1  # RUN
   </code>
 
   <code prism class='language-bash'>
@@ -216,7 +214,8 @@ diff --git a/ruby2/Dockerfile b/ruby2/Dockerfile
 index dd37dcb..2b9c105 100644
 --- a/ruby2/Dockerfile
 +++ b/ruby2/Dockerfile
-@@ -8,3 +8,4 @@ RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" > /
+@@ -8,3 +8,4 @@
+RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" > /
  RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C3173AA6
  RUN apt-get update
  RUN apt-get install -y ruby2.1
@@ -226,7 +225,7 @@ index dd37dcb..2b9c105 100644
 </slide>
 
 <slide>
-  <h2>... it was awful</h2>
+  <h2>... grumpy cat says</h2>
   <img class="center media" src='images/no.jpg' alt='Grumpy cat says no'/>
 </slide>
 
@@ -256,7 +255,8 @@ $ docker images --tree
 FROM ubuntu:14.04
 MAINTAINER Giacomo Bagnoli &lt;gbagnoli@gmail.com&gt;
 
-RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" \
+RUN \
+ echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" \
     &gt; /etc/apt/sources.list.d/ruby-ng.list && \
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C3173AA6 && \
     apt-get update && \
@@ -306,7 +306,8 @@ rubyday/ruby         2.1        b337a5c538f3        About a minute ago  236.9 MB
 FROM ubuntu:14.04
 
 MAINTAINER Giacomo Bagnoli <gbagnoli@gmail.com>
-RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng-experimental/ubuntu trusty main" \
+RUN \
+ echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" \
     > /etc/apt/sources.list.d/ruby-ng.list
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C3173AA6
 RUN apt-get update && \
@@ -497,8 +498,9 @@ $ docker run --rm --name todoapp -t rubyday/todo
 
 <slide>
   <h2>Linking!</h2>
-  <code prism class='language-bash'>
-$ docker run --rm --link postgres:db --name todoapp -t rubyday/todo /bin/bash -c 'env'
+  <code prism class='language-clike'>
+$ docker run --rm --link postgres:db --name todoapp \
+  -t rubyday/todo /bin/bash -c 'env'
 DB_ENV_PGDATA=/var/lib/postgresql/data
 DB_NAME=/todoapp/db
 DB_PORT_5432_TCP_ADDR=172.17.0.4
@@ -545,7 +547,7 @@ a5723351c46c        postgres:9            [...] 5432/tcp                   postg
 
 <slide>
   <h2>Does it work?</h2>
-  <code prism class='language-bash'>
+  <code prism class='language-http'>
 $ netstat -lnp | grep 3000
 tcp6       0      0 :::3000           :::*       LISTEN      3645/docker-proxy
 

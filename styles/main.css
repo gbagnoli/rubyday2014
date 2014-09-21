@@ -572,8 +572,13 @@ code.inline, [markdown] code {
   background-color: #f8f8f8; }
 
 code[class*="language-"], pre[class*="language-"] {
-  font-size: 85%;
-  line-height: 1.1; }
+  font-size: 95%;
+  line-height: 1.1;
+  padding-left: 10px; }
+
+.scaled {
+  font-size: 90%;
+  line-height: 0.9; }
 
 .center {
   text-align: center; }
