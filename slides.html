@@ -28,8 +28,8 @@
 
 <slide bg-img="snowflakes.jpg" credits="https://www.flickr.com/photos/amagill/4223790595/">
   <h2>What's wrong with my dev environment?</h2>
-  <p>Youd development environment is probably</p>
-  <p>a beautiful, unique <strong>snowflake</strong></p>
+  <p class='big'>Youd development environment is probably <br/>
+  a beautiful, unique <strong>snowflake</strong></p>
 </slide>
 
 <slide>
@@ -114,7 +114,7 @@
 
 <slide>
   <h2>Docker Images (3)</h2>
-<code hljs>
+<code prism class='language-bash'>
 $ docker pull ubuntu:14.04
 $ docker pull ubuntu:12.04
 $ docker pull redis:2.8.13
@@ -133,7 +133,7 @@ ubuntu                    12.04               ec966722cde4        2 days ago    
 
 <slide>
   <h2>Docker Images (4)</h2>
-  <code hljs>
+  <code prism class='language-bash'>
 $ docker images --tree
 └─511136ea3c5a Virtual Size: 0 B
   └─b37448882294 Virtual Size: 85.19 MB
@@ -163,7 +163,7 @@ $ docker images --tree
 </p>
 
 <p>Dockerfile:</p>
-<pre>
+<code prism class='language-bash'>
 FROM ubuntu:14.04
 MAINTAINER Giacomo Bagnoli &lt;gbagnoli@gmail.com&gt;
 
@@ -172,12 +172,12 @@ RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" > \
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C3173AA6
 RUN apt-get update
 RUN apt-get install -y ruby2.1
-</pre>
+</code>
 
 Build!
-<pre>
+<code prism class='language-bash'>
 $ docker build --rm -t rubyday/ruby:2.1 .
-</pre>
+</code>
 </slide>
 
 <slide>
@@ -185,7 +185,7 @@ $ docker build --rm -t rubyday/ruby:2.1 .
   <p>
     Each directive in the <code class="inline">Dockerfile</code> adds a layer
   </p>
-  <pre>
+  <code prism class='language-bash'>
 $ docker images --tree
 
 └─96864a7d2df3 Virtual Size: 204.4 MB Tags: ubuntu:14.04
@@ -194,12 +194,12 @@ $ docker images --tree
       └─724a6664d97a Virtual Size: 204.4 MB                               # RUN
         └─8614dab05fbe Virtual Size: 224.8 MB                             # RUN
           └─d7ae4a198781 Virtual Size: 257.2 MB Tags: rubyday/ruby:2.1    # RUN
-  </pre>
+  </code>
 
-  <pre>
+  <code prism class='language-bash'>
 $ docker run -t rubyday/ruby:2.1 ruby -v
 ruby 2.1.2p95 (2014-05-08 revision 45877) [x86_64-linux-gnu]
-  </pre>
+  </code>
 
   <p>
     Woah, 53Mb. <code class='inline'>apt-get update</code> adds 20Mb to the image.
@@ -211,7 +211,7 @@ ruby 2.1.2p95 (2014-05-08 revision 45877) [x86_64-linux-gnu]
   <p>
     Let's remove apt-get files by adding another RUN statement
   </p>
-  <pre>
+  <code prism class='language-bash'>
 diff --git a/ruby2/Dockerfile b/ruby2/Dockerfile
 index dd37dcb..2b9c105 100644
 --- a/ruby2/Dockerfile
@@ -221,7 +221,7 @@ index dd37dcb..2b9c105 100644
  RUN apt-get update
  RUN apt-get install -y ruby2.1
 +RUN rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
-  </pre>
+  </code>
 
 </slide>
 
@@ -232,7 +232,7 @@ index dd37dcb..2b9c105 100644
 
 <slide>
   <h2>Layers..</h2>
-  <pre>
+  <code prism class='language-bash'>
 $ docker images --tree
 
 └─96864a7d2df3 Virtual Size: 204.4 MB Tags: ubuntu:14.04
@@ -242,7 +242,7 @@ $ docker images --tree
         └─8614dab05fbe Virtual Size: 224.8 MB                             # RUN
           └─d7ae4a198781 Virtual Size: 257.2 MB                           # RUN
             └─b8bb3ce3008e Virtual Size: 257.2 MB Tags: rubyday/ruby:2.1  # RUN
-  </pre>
+  </code>
 
   <p>
     Remember that every directive adds a layer. Layers are read only.
@@ -252,7 +252,7 @@ $ docker images --tree
 <slide>
   <h2>Let's try once more</h2>
   Let's rewrite the <code class="inline">Dockerfile</code>
-  <pre>
+  <code prism class='language-bash'>
 FROM ubuntu:14.04
 MAINTAINER Giacomo Bagnoli &lt;gbagnoli@gmail.com&gt;
 
@@ -262,27 +262,27 @@ RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" \
     apt-get update && \
     apt-get install -y ruby2.1 && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
-  </pre>
+  </code>
 </slide>
 
 <slide>
   <h2>Rebuild</h2>
   Build:
-  <pre>
+  <code prism class='language-bash'>
 $ docker build --rm -t rubyday/ruby:2.1 .
-  </pre>
+  </code>
 
-  <pre>
+  <code prism class='language-bash'>
 $ docker images
 REPOSITORY           TAG        IMAGE ID            CREATED             VIRTUAL SIZE
 rubyday/ruby         2.1        b337a5c538f3        About a minute ago  236.9 MB
-  </pre>
+  </code>
 
-  <pre>
+  <code prism class='language-bash'>
 └─96864a7d2df3 Virtual Size: 204.4 MB Tags: ubuntu:14.04
   └─86ae939e2da3 Virtual Size: 204.4 MB                         # MAINTAINER
     └─b337a5c538f3 Virtual Size: 236.9 MB Tags: gild/ruby:2.1   # RUN
-  </pre>
+  </code>
 
   <p class="big">
     yay!
@@ -302,7 +302,7 @@ rubyday/ruby         2.1        b337a5c538f3        About a minute ago  236.9 MB
   <p>
     Let's update the <code class='inline'>Dockerfile</code>
   </p>
-  <pre>
+  <code prism class='language-bash'>
 FROM ubuntu:14.04
 
 MAINTAINER Giacomo Bagnoli <gbagnoli@gmail.com>
@@ -316,7 +316,7 @@ RUN apt-get update && \
     update-alternatives --set gem /usr/bin/gem2.1 && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
 RUN gem install bundle
-  </pre>
+  </code>
 </slide>
 
 <slide>
@@ -358,13 +358,11 @@ RUN gem install bundle
 <slide>
   <h2>The Dockerfile</h2>
   <div class="scaled">
-    <pre>
+    <code prism class='language-bash'>
 FROM rubyday/ruby:2.1
-
 MAINTAINER Giacomo Bagnoli &lt;gbagnoli@gmail.com&gt;
 
 RUN adduser todo --home /opt/todo --shell /bin/bash --disabled-password --gecos ""
-
 RUN apt-get update && \
     apt-get install -y libpq-dev nodejs && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
@@ -383,70 +381,70 @@ RUN chown -R todo:todo /opt/todo
 USER todo
 ENTRYPOINT ["/bin/bash", "/opt/todo/bin/docker_entrypoint.sh"]
 CMD ["bundle", "exec", "rails", "server"]
-    </pre>
+    </code>
   </div>
 </slide>
 
 <slide>
   <h2>Dockerfile explained (0)</h2>
-  <pre>
+  <code prism class='language-bash'>
 FROM rubyday/ruby:2.1
 
 MAINTAINER Giacomo Bagnoli &lt;gbagnoli@gmail.com&gt;
-  </pre>
+  </code>
 </slide>
 
 <slide>
   <h2>Dockerfile explained (1)</h2>
-  <pre>
+  <code prism class='language-bash'>
 RUN adduser todo --home /opt/todo --shell /bin/bash --disabled-password --gecos ""
 
 RUN apt-get update && \
     apt-get install -y libpq-dev nodejs && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
-  </pre>
+  </code>
 </slide>
 
 <slide>
   <h2>Dockerfile explained (2)</h2>
-  <pre>
+  <code prism class='language-bash'>
 ADD Gemfile /opt/todo/
 ADD Gemfile.lock /opt/todo/
 RUN chown -R todo:todo /opt/todo
 RUN su -c "mkdir /opt/todo/bundle && bundle install --deployment --path /opt/todo/bundle"\
   -s /bin/bash -l todo
-  </pre>
+  </code>
 </slide>
 
 <slide>
   <h2>Dockerfile explained (3)</h2>
-  <pre>
+  <code prism class='language-bash'>
 WORKDIR /opt/todo
 EXPOSE 3000
 ADD . /opt/todo
 RUN chown -R todo:todo /opt/todo
-  </pre>
+  </code>
 </slide>
 
 <slide>
   <h2>Dockerfile explained (4)</h2>
-  <pre>
+  <code prism class='language-bash'>
 USER todo
 ENTRYPOINT ["/bin/bash", "/opt/todo/bin/docker_entrypoint.sh"]
 CMD ["bundle", "exec", "rails", "server"]
-  </pre>
+  </code>
 </slide>
 
 <slide>
   <h2>Postgres container</h2>
-  <pre>
+  <code prism class='language-bash'>
 $ docker pull postgres:9.3
 $ docker run -d --name postgres -t postgres:9.3
 a5723351c46ce015d585dd49f230ecb376557d0b955f233dbff3bf92f3a6721d
 $ docker ps
 CONTAINER ID        IMAGE               [...]   PORTS               NAMES
 a5723351c46c        postgres:9          [...]   5432/tcp            postgres
-  </pre>
+  </code>
 
   <p>
     This container <code class='inline'>EXPOSE</code>s port <code class='inline'>5432</code>.
@@ -461,7 +459,7 @@ a5723351c46c        postgres:9          [...]   5432/tcp            postgres
   <p>
     In the Dockerfile, an <code class='inline'>ENTRYPOINT</code> was specified.
   </p>
-  <code hljs>
+  <code prism class='language-bash'>
 #!/bin/bash
 
 # exit with error if a variable is unbound (not set)
@@ -491,15 +489,15 @@ exec "$@"
   <p>
     Trying to execute the container will throw an error (it's a feature!)
   </p>
-  <pre>
+  <code prism class='language-bash'>
 $ docker run --rm --name todoapp -t rubyday/todo
 /opt/todo/bin/docker_entrypoint.sh: line 6: DB_PORT_5432_TCP_ADDR: unbound variable
-  </pre>
+  </code>
 </slide>
 
 <slide>
   <h2>Linking!</h2>
-  <code hljs>
+  <code prism class='language-bash'>
 $ docker run --rm --link postgres:db --name todoapp -t rubyday/todo /bin/bash -c 'env'
 DB_ENV_PGDATA=/var/lib/postgresql/data
 DB_NAME=/todoapp/db
@@ -528,7 +526,7 @@ DATABASE_URL=postgresql://postgres@172.17.0.4:5432/todo
   <p>
     Pretty much standard business
   </p>
-  <pre>
+  <code prism class='language-bash'>
 $ docker run --rm --link postgres:db -t rubyday/todo bundle exec rake db:create
 $ docker run --rm --link postgres:db -t rubyday/todo bundle exec rake db:schema:load
 
@@ -539,7 +537,7 @@ $ docker ps
 CONTAINER ID        IMAGE                 [...] PORTS                      NAMES
 7540f7647309        rubyday/todo:latest   [...] 0.0.0.0:3000-&gt;3000/tcp     todoapp
 a5723351c46c        postgres:9            [...] 5432/tcp                   postgres,todoapp/db
-  </pre>
+  </code>
   <p>
     <code class='inline'>-p 3000:3000</code> creates a port forward from the host to the container
   </p>
@@ -547,7 +545,7 @@ a5723351c46c        postgres:9            [...] 5432/tcp                   postg
 
 <slide>
   <h2>Does it work?</h2>
-  <pre>
+  <code prism class='language-bash'>
 $ netstat -lnp | grep 3000
 tcp6       0      0 :::3000           :::*       LISTEN      3645/docker-proxy
 
@@ -570,7 +568,7 @@ $ curl -v http://localhost:3000
 < X-Runtime: 0.031537
 < Connection: close
 [.. html ..]
-  </pre>
+  </code>
 </slide>
 <!--
 <slide>
