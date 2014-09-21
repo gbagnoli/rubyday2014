@@ -488,7 +488,7 @@ Monokai Sublime style. Derived from Monokai by noformnocontent http://nn.mit-lic
 .hljs {
   display: block;
   padding: 0.5em;
-  background: #23241f;
+  background: #34352f;
   color: #f8f8f2;
   text-align: left;
   font-size: 95%; }
@@ -496,7 +496,7 @@ Monokai Sublime style. Derived from Monokai by noformnocontent http://nn.mit-lic
 pre {
   display: block;
   padding: 0.5em;
-  background: #23241f;
+  background: #34352f;
   color: #f8f8f2;
   text-align: left;
   font-size: 75%; }
@@ -556,6 +556,9 @@ pre {
 
 .django .hljs-template_tag, .django .hljs-variable {
   color: #e6db74; }
+
+.bash .hljs-variable {
+  color: #e77; }
 
 .smalltalk .hljs-class, .django .hljs-filter .hljs-argument {
   color: #e6db74; }
