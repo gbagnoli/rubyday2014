@@ -164,7 +164,7 @@ $ docker images --tree
 
 <p>Dockerfile:</p>
 <pre>
-FROM       ubuntu:14.04
+FROM ubuntu:14.04
 MAINTAINER Giacomo Bagnoli &lt;gbagnoli@gmail.com&gt;
 
 RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" > \
@@ -253,7 +253,7 @@ $ docker images --tree
   <h2>Let's try once more</h2>
   Let's rewrite the <code class="inline">Dockerfile</code>
   <pre>
-FROM       ubuntu:14.04
+FROM ubuntu:14.04
 MAINTAINER Giacomo Bagnoli &lt;gbagnoli@gmail.com&gt;
 
 RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" \
@@ -294,6 +294,284 @@ rubyday/ruby         2.1        b337a5c538f3        About a minute ago  236.9 MB
   <img class="center media" src='images/success.jpg' alt='Yay!'/>
 </slide>
 
+<slide>
+  <h2>..one more thing</h2>
+  <p>
+    We probably want <code class='inline'>-dev</code> packages and <code class='inline'>bundle</code>
+  </p>
+  <p>
+    Let's update the <code class='inline'>Dockerfile</code>
+  </p>
+  <pre>
+FROM ubuntu:14.04
+
+MAINTAINER Giacomo Bagnoli <gbagnoli@gmail.com>
+RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng-experimental/ubuntu trusty main" \
+    > /etc/apt/sources.list.d/ruby-ng.list
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C3173AA6
+RUN apt-get update && \
+    apt-get install -y build-essential && \
+    apt-get install -y ruby2.1 ruby2.1-dev && \
+    update-alternatives --set ruby /usr/bin/ruby2.1 && \
+    update-alternatives --set gem /usr/bin/gem2.1 && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
+RUN gem install bundle
+  </pre>
+</slide>
+
+<slide>
+  <h2>Time for Rails</h2>
+  <img class="center media fright" src='images/todo.png' alt='TODO list'/>
+  <p>
+    Let's try creating a <code class='inline'>Dockerfile</code> for a rails app.
+  </p>
+  <p>
+    The app is a <strike>random</strike> simple TODO list application found on Github.
+  </p>
+
+  <p>
+    It's a rails4 application that uses SQL, nothing fancy.
+  </p>
+  <p>
+    Let's assume we are developing this app targeting postgresql.
+  </p>
+  <p>
+    Github url: <br/>
+    <code class='inline'>https://github.com/gbagnoli/todo-rails4-angularjs</code>
+  </p>
+</slide>
+
+<slide>
+  <h2>A word on linking</h2>
+  <p>
+    In docker, we can access service(s) running in other container(s) via <strong>linking</strong>
+  </p>
+  <p>
+    Linking a container to another will setup some environment variables in it,
+    allowing the container to discover and connect to the service.
+  </p>
+  <p>
+    We will use this feature to access <code class='inline'>postgres</code> from our app container.
+  </p>
+</slide>
+
+<slide>
+  <h2>The Dockerfile</h2>
+  <div class="scaled">
+    <pre>
+FROM rubyday/ruby:2.1
+
+MAINTAINER Giacomo Bagnoli &lt;gbagnoli@gmail.com&gt;
+
+RUN adduser todo --home /opt/todo --shell /bin/bash --disabled-password --gecos ""
+
+RUN apt-get update && \
+    apt-get install -y libpq-dev nodejs && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
+
+ADD Gemfile /opt/todo/
+ADD Gemfile.lock /opt/todo/
+RUN chown -R todo:todo /opt/todo
+RUN su -c "mkdir /opt/todo/bundle && bundle install --deployment --path /opt/todo/bundle"\
+  -s /bin/bash -l todo
+
+WORKDIR /opt/todo
+EXPOSE 3000
+ADD . /opt/todo
+RUN chown -R todo:todo /opt/todo
+
+USER todo
+ENTRYPOINT ["/bin/bash", "/opt/todo/bin/docker_entrypoint.sh"]
+CMD ["bundle", "exec", "rails", "server"]
+    </pre>
+  </div>
+</slide>
+
+<slide>
+  <h2>Dockerfile explained (0)</h2>
+  <pre>
+FROM rubyday/ruby:2.1
+
+MAINTAINER Giacomo Bagnoli &lt;gbagnoli@gmail.com&gt;
+  </pre>
+</slide>
+
+<slide>
+  <h2>Dockerfile explained (1)</h2>
+  <pre>
+RUN adduser todo --home /opt/todo --shell /bin/bash --disabled-password --gecos ""
+
+RUN apt-get update && \
+    apt-get install -y libpq-dev nodejs && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
+  </pre>
+</slide>
+
+<slide>
+  <h2>Dockerfile explained (2)</h2>
+  <pre>
+ADD Gemfile /opt/todo/
+ADD Gemfile.lock /opt/todo/
+RUN chown -R todo:todo /opt/todo
+RUN su -c "mkdir /opt/todo/bundle && bundle install --deployment --path /opt/todo/bundle"\
+  -s /bin/bash -l todo
+  </pre>
+</slide>
+
+<slide>
+  <h2>Dockerfile explained (3)</h2>
+  <pre>
+WORKDIR /opt/todo
+EXPOSE 3000
+ADD . /opt/todo
+RUN chown -R todo:todo /opt/todo
+  </pre>
+</slide>
+
+<slide>
+  <h2>Dockerfile explained (4)</h2>
+  <pre>
+USER todo
+ENTRYPOINT ["/bin/bash", "/opt/todo/bin/docker_entrypoint.sh"]
+CMD ["bundle", "exec", "rails", "server"]
+  </pre>
+</slide>
+
+<slide>
+  <h2>Postgres container</h2>
+  <pre>
+$ docker pull postgres:9.3
+$ docker run -d --name postgres -t postgres:9.3
+a5723351c46ce015d585dd49f230ecb376557d0b955f233dbff3bf92f3a6721d
+$ docker ps
+CONTAINER ID        IMAGE               [...]   PORTS               NAMES
+a5723351c46c        postgres:9          [...]   5432/tcp            postgres
+  </pre>
+
+  <p>
+    This container <code class='inline'>EXPOSE</code>s port <code class='inline'>5432</code>.
+  </p>
+  <p>
+    Question is, how do we connect to it?
+  </p>
+</slide>
+
+<slide>
+  <h2>The wrapper script (0)</h2>
+  <p>
+    In the Dockerfile, an <code class='inline'>ENTRYPOINT</code> was specified.
+  </p>
+  <code hljs>
+#!/bin/bash
+
+# exit with error if a variable is unbound (not set)
+set -u
+# exit with error if a command returns a non-zero status
+set -e
+
+PGADDR=$DB_PORT_5432_TCP_ADDR
+PGPORT=$DB_PORT_5432_TCP_PORT
+PGDBNAME="${DATABASE_NAME:-todo}"
+PGUSER="${DATABASE_USER:-postgres}"
+
+# export database configuration for rails.
+export DATABASE_URL="postgresql://${PGUSER}@${PGADDR}:${PGPORT}/${PGDBNAME}"
+
+# exec what the user wants
+exec "$@"
+  </code>
+
+  <p>
+    <code class='inline'>DB_PORT_5432_TCP_*</code> variables are injected by docker <br/>
+  </p>
+</slide>
+
+<slide>
+  <h2>The wrapper script (1)</h2>
+  <p>
+    Trying to execute the container will throw an error (it's a feature!)
+  </p>
+  <pre>
+$ docker run --rm --name todoapp -t rubyday/todo
+/opt/todo/bin/docker_entrypoint.sh: line 6: DB_PORT_5432_TCP_ADDR: unbound variable
+  </pre>
+</slide>
+
+<slide>
+  <h2>Linking!</h2>
+  <code hljs>
+$ docker run --rm --link postgres:db --name todoapp -t rubyday/todo /bin/bash -c 'env'
+DB_ENV_PGDATA=/var/lib/postgresql/data
+DB_NAME=/todoapp/db
+DB_PORT_5432_TCP_ADDR=172.17.0.4
+DB_PORT=tcp://172.17.0.4:5432
+DB_ENV_LANG=en_US.utf8
+DB_PORT_5432_TCP=tcp://172.17.0.4:5432
+DB_ENV_PG_MAJOR=9.3
+DB_PORT_5432_TCP_PORT=5432
+DB_PORT_5432_TCP_PROTO=tcp
+DB_ENV_PG_VERSION=9.3.5-1.pgdg70+1
+DATABASE_URL=postgresql://postgres@172.17.0.4:5432/todo
+</code>
+  <ul>
+    <li>
+      <code class='inline'>--link postgres:db</code> link container named <strong>postgres</strong> with alias <strong>db</strong>
+    </li>
+    <li>
+      alias <strong>db</strong> tells docker to prefix all variables with <code class='inline'>DB</code>
+    </li>
+  </ul>
+</slide>
+
+<slide>
+  <h2>Start the app</h2>
+  <p>
+    Pretty much standard business
+  </p>
+  <pre>
+$ docker run --rm --link postgres:db -t rubyday/todo bundle exec rake db:create
+$ docker run --rm --link postgres:db -t rubyday/todo bundle exec rake db:schema:load
+
+$ docker run --link postgres:db --name todoapp -p 3000:3000 -d -t rubyday/todo
+7540f7647309110c53d2349cf7c68d1388e0f43de3d5904396fa2bb4041b6b28
+
+$ docker ps
+CONTAINER ID        IMAGE                 [...] PORTS                      NAMES
+7540f7647309        rubyday/todo:latest   [...] 0.0.0.0:3000-&gt;3000/tcp     todoapp
+a5723351c46c        postgres:9            [...] 5432/tcp                   postgres,todoapp/db
+  </pre>
+  <p>
+    <code class='inline'>-p 3000:3000</code> creates a port forward from the host to the container
+  </p>
+</slide>
+
+<slide>
+  <h2>Does it work?</h2>
+  <pre>
+$ netstat -lnp | grep 3000
+tcp6       0      0 :::3000           :::*       LISTEN      3645/docker-proxy
+
+$ curl -v http://localhost:3000
+* Connected to localhost (127.0.0.1) port 3000 (#0)
+> GET / HTTP/1.1
+> User-Agent: curl/7.35.0
+> Host: localhost:3000
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< X-Frame-Options: SAMEORIGIN
+< X-XSS-Protection: 1; mode=block
+< X-Content-Type-Options: nosniff
+< X-UA-Compatible: chrome=1
+< Content-Type: text/html; charset=utf-8
+< ETag: "ab48356e27908889865580e995129ad5"
+< Cache-Control: max-age=0, private, must-revalidate
+< X-Request-Id: 12cfd267-cab9-4d45-a98a-5f8809d279d3
+< X-Runtime: 0.031537
+< Connection: close
+[.. html ..]
+  </pre>
+</slide>
 <!--
 <slide>
   <h2>Why another presentation framework?</h2>
