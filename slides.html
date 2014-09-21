@@ -151,13 +151,104 @@ $ docker images --tree
 </slide>
 
 <slide>
+  <h2>Let's build a ruby2 image</h2>
+<p>
+  Ubuntu 14.04 image has no ruby at all. Repos have ruby 1.9
+</p>
+
+<p>Dockerfile:</p>
+<pre>
+FROM       ubuntu:14.04
+MAINTAINER Giacomo Bagnoli &lt;gbagnoli@gmail.com&gt;
+
+RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" > \
+    /etc/apt/sources.list.d/ruby-ng.list
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C3173AA6
+RUN apt-get update
+RUN apt-get install -y ruby2.1
+</pre>
+
+Build!
+<pre>
+$ docker build --rm -t rubyday/ruby:2.1 .
+</pre>
+</slide>
+
+<slide>
+  <h2>Ruby2 image</h2>
+  <p>
+    Each directive in the <code class="inline">Dockerfile</code> adds a layer
+  </p>
+  <pre>
+$ docker images --tree
+
+└─96864a7d2df3 Virtual Size: 204.4 MB Tags: ubuntu:14.04
+  └─8f1b6341c5be Virtual Size: 204.4 MB                                   # MAINTAINER
+    └─d323cc59da91 Virtual Size: 204.4 MB                                 # RUN
+      └─724a6664d97a Virtual Size: 204.4 MB                               # RUN
+        └─8614dab05fbe Virtual Size: 224.8 MB                             # RUN
+          └─d7ae4a198781 Virtual Size: 257.2 MB Tags: rubyday/ruby:2.1    # RUN
+  </pre>
+
+  <pre>
+$ docker run -t rubyday/ruby:2.1 ruby -v
+ruby 2.1.2p95 (2014-05-08 revision 45877) [x86_64-linux-gnu]
+  </pre>
+
+  <p>
+    Woah, 53Mb. <code class='inline'>apt-get update</code> adds 20Mb to the image.
+  </p>
+</slide>
+
+<slide>
+  <h2>Ruby2 image (2)</h2>
+  <p>
+    Let's remove apt-get files by adding another RUN statement
+  </p>
+  <pre>
+diff --git a/ruby2/Dockerfile b/ruby2/Dockerfile
+index dd37dcb..2b9c105 100644
+--- a/ruby2/Dockerfile
++++ b/ruby2/Dockerfile
+@@ -8,3 +8,4 @@ RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" > /
+ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C3173AA6
+ RUN apt-get update
+ RUN apt-get install -y ruby2.1
++RUN rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
+  </pre>
+
+  <p>
+    Rebuild... and....
+  </p>
+</slide>
+
+<slide>
+  <h2>Ruby2 Image (3)</h2>
+  <pre>
+$ docker images --tree
+
+└─96864a7d2df3 Virtual Size: 204.4 MB Tags: ubuntu:14.04
+  └─8f1b6341c5be Virtual Size: 204.4 MB                                   # MAINTAINER
+    └─d323cc59da91 Virtual Size: 204.4 MB                                 # RUN
+      └─724a6664d97a Virtual Size: 204.4 MB                               # RUN
+        └─8614dab05fbe Virtual Size: 224.8 MB                             # RUN
+          └─d7ae4a198781 Virtual Size: 257.2 MB                           # RUN
+            └─b8bb3ce3008e Virtual Size: 257.2 MB Tags: rubyday/ruby:2.1  # RUN
+  </pre>
+  <p class="big">
+    WHAT?
+  </p>
+
+  <p>
+    Remember that every directive adds a layer. Layers are read only.
+  </p>
+</slide>
+
+<slide>
   <h2>Dockerfile</h2>
   <pre>
-# Format: FROM    repository[:version]
 FROM       ubuntu:14.04
-
-# Format: MAINTAINER Name &lt;email@addr.ess&gt;
-MAINTAINER Giacomo Bagnoli &lt;giacomo@gild.com&gt;
+MAINTAINER Giacomo Bagnoli &lt;gbagnoli@gmail.com&gt;
 
 RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" \
     &gt; /etc/apt/sources.list.d/ruby-ng.list && \
@@ -169,25 +260,23 @@ RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" \
 </slide>
 
 <slide>
-  <h2>Our first image</h2>
+  <h2>Rebuild</h2>
   Build:
-  <code hljs>
-$ docker build --rm -t gild/ruby:2.1 .
-  </code>
+  <pre>
+$ docker build --rm -t rubyday/ruby:2.1 .
+  </pre>
 
-  <code hljs>
+  <pre>
 $ docker images
-REPOSITORY                TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
-gild/ruby                 2.1                 2a1d4e5c63c4        12 minutes ago      236.9 MB
-  </code>
+REPOSITORY           TAG        IMAGE ID            CREATED             VIRTUAL SIZE
+rubyday/ruby         2.1        b337a5c538f3        About a minute ago  236.9 MB
+  </pre>
 
-  Each directive in the <code class="inline">Dockerfile</code> adds a layer
-
-  <code hljs>
+  <pre>
 └─96864a7d2df3 Virtual Size: 204.4 MB Tags: ubuntu:14.04
-  └─0890f008e37c Virtual Size: 204.4 MB                         # MAINTAINER
-    └─2a1d4e5c63c4 Virtual Size: 236.9 MB Tags: gild/ruby:2.1   # RUN
-  </code>
+  └─86ae939e2da3 Virtual Size: 204.4 MB                         # MAINTAINER
+    └─b337a5c538f3 Virtual Size: 236.9 MB Tags: gild/ruby:2.1   # RUN
+  </pre>
 </slide>
 <!--
 <slide>
