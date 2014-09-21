@@ -114,7 +114,13 @@
 
 <slide>
   <h2>Docker Images (3)</h2>
-  <code hljs>
+<code hljs>
+$ docker pull ubuntu:14.04
+$ docker pull ubuntu:12.04
+$ docker pull redis:2.8.13
+$ docker pull debian:wheezy
+$ docker pull mongo:2.6.4
+
 $ docker images
 REPOSITORY                TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
 redis                     2.8.13              dd52dc9c8f76        9 minutes ago       98.44 MB
@@ -201,7 +207,7 @@ ruby 2.1.2p95 (2014-05-08 revision 45877) [x86_64-linux-gnu]
 </slide>
 
 <slide>
-  <h2>Ruby2 image (2)</h2>
+  <h2>I tried...</h2>
   <p>
     Let's remove apt-get files by adding another RUN statement
   </p>
@@ -217,13 +223,15 @@ index dd37dcb..2b9c105 100644
 +RUN rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
   </pre>
 
-  <p>
-    Rebuild... and....
-  </p>
 </slide>
 
 <slide>
-  <h2>Ruby2 Image (3)</h2>
+  <h2>... it was awful</h2>
+  <img class="center media" src='images/no.jpg' alt='Grumpy cat says no'/>
+</slide>
+
+<slide>
+  <h2>Layers..</h2>
   <pre>
 $ docker images --tree
 
@@ -235,9 +243,6 @@ $ docker images --tree
           └─d7ae4a198781 Virtual Size: 257.2 MB                           # RUN
             └─b8bb3ce3008e Virtual Size: 257.2 MB Tags: rubyday/ruby:2.1  # RUN
   </pre>
-  <p class="big">
-    WHAT?
-  </p>
 
   <p>
     Remember that every directive adds a layer. Layers are read only.
@@ -245,7 +250,8 @@ $ docker images --tree
 </slide>
 
 <slide>
-  <h2>Dockerfile</h2>
+  <h2>Let's try once more</h2>
+  Let's rewrite the <code class="inline">Dockerfile</code>
   <pre>
 FROM       ubuntu:14.04
 MAINTAINER Giacomo Bagnoli &lt;gbagnoli@gmail.com&gt;
@@ -277,7 +283,17 @@ rubyday/ruby         2.1        b337a5c538f3        About a minute ago  236.9 MB
   └─86ae939e2da3 Virtual Size: 204.4 MB                         # MAINTAINER
     └─b337a5c538f3 Virtual Size: 236.9 MB Tags: gild/ruby:2.1   # RUN
   </pre>
+
+  <p class="big">
+    yay!
+  </p>
 </slide>
+
+<slide>
+  <h2>Pat me on the back</h2>
+  <img class="center media" src='images/success.jpg' alt='Yay!'/>
+</slide>
+
 <!--
 <slide>
   <h2>Why another presentation framework?</h2>
