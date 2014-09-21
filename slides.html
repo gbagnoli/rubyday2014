@@ -437,7 +437,7 @@ CMD ["bundle", "exec", "rails", "server"]
 </slide>
 
 <slide>
-  <h2>Postgres container</h2>
+  <h2>Postgres container (0)</h2>
   <code prism class='language-bash'>
 $ docker pull postgres:9.3
 $ docker run -d --name postgres -t postgres:9.3
@@ -453,6 +453,26 @@ a5723351c46c        postgres:9          [...]   5432/tcp            postgres
   <p>
     Question is, how do we connect to it?
   </p>
+</slide>
+
+<slide>
+  <h2>Postgres container (1)</h2>
+  <p>
+    We can't just hardcode its ip address, as it defeats the purpose..
+  </p>
+  <code prism class='language-bash'>
+$ docker inspect postgres | grep NetworkSettings -A 9
+    "NetworkSettings": {
+        "Bridge": "docker0",
+        "Gateway": "172.17.42.1",
+        "IPAddress": "172.17.0.4",
+        "IPPrefixLen": 16,
+        "PortMapping": null,
+        "Ports": {
+            "5432/tcp": null
+        }
+    },
+  </code>
 </slide>
 
 <slide>
@@ -524,7 +544,7 @@ DATABASE_URL=postgresql://postgres@172.17.0.4:5432/todo
 </slide>
 
 <slide>
-  <h2>Start the app</h2>
+  <h2>Start!</h2>
   <p>
     Pretty much standard business
   </p>
@@ -536,9 +556,9 @@ $ docker run --link postgres:db --name todoapp -p 3000:3000 -d -t rubyday/todo
 7540f7647309110c53d2349cf7c68d1388e0f43de3d5904396fa2bb4041b6b28
 
 $ docker ps
-CONTAINER ID        IMAGE                 [...] PORTS                      NAMES
-7540f7647309        rubyday/todo:latest   [...] 0.0.0.0:3000-&gt;3000/tcp     todoapp
-a5723351c46c        postgres:9            [...] 5432/tcp                   postgres,todoapp/db
+CONTAINER ID  IMAGE                [..] PORTS                  NAMES
+7540f7647309  rubyday/todo:latest  [..] 0.0.0.0:3000-&gt;3000/tcp todoapp
+a5723351c46c  postgres:9           [..] 5432/tcp               postgres,todoapp/db
   </code>
   <p>
     <code class='inline'>-p 3000:3000</code> creates a port forward from the host to the container
@@ -549,7 +569,7 @@ a5723351c46c        postgres:9            [...] 5432/tcp                   postg
   <h2>Does it work?</h2>
   <code prism class='language-http'>
 $ netstat -lnp | grep 3000
-tcp6       0      0 :::3000           :::*       LISTEN      3645/docker-proxy
+tcp6       0      0 :::3000      :::*    LISTEN      3645/docker-proxy
 
 $ curl -v http://localhost:3000
 * Connected to localhost (127.0.0.1) port 3000 (#0)
@@ -559,17 +579,7 @@ $ curl -v http://localhost:3000
 > Accept: */*
 >
 < HTTP/1.1 200 OK
-< X-Frame-Options: SAMEORIGIN
-< X-XSS-Protection: 1; mode=block
-< X-Content-Type-Options: nosniff
-< X-UA-Compatible: chrome=1
-< Content-Type: text/html; charset=utf-8
-< ETag: "ab48356e27908889865580e995129ad5"
-< Cache-Control: max-age=0, private, must-revalidate
-< X-Request-Id: 12cfd267-cab9-4d45-a98a-5f8809d279d3
-< X-Runtime: 0.031537
-< Connection: close
-[.. html ..]
+[...]
   </code>
 </slide>
 <!--
