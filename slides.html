@@ -66,9 +66,9 @@
 
   <ul>
     <li>Operating system-level virtualization*</li>
-    <li>runs multiple isolated <strong>linux</strong> systems</li>
-    <li>on a single host, with a single kernel.</li>
-    <li>no <code class="inline">/sbin/init</code>, no device emulation</li>
+    <li>Runs multiple isolated <strong>linux</strong> systems</li>
+    <li>On a single host, with a single kernel</li>
+    <li>No <code class="inline">/sbin/init</code>, no device emulation</li>
     <li>Think them as <code class="inline">chroot</code> on steroids</li>
   </ul>
 
@@ -101,7 +101,7 @@
   </p>
   <p>
     The read-only and portable properties are <strong>important</strong> as they
-    enable sharing (via the docker hub)
+    enable sharing (via the docker hub).
   </p>
 </slide>
 
@@ -109,14 +109,14 @@
   <h2>Docker Images (1)</h2>
   <img class="center media fright" src='images/docker-dag.png' alt='Docker DAG'/>
   <p>
-    Docker images form a <strong>D</strong>irect <strong>A</strong>cyclic <strong>G</strong>raph
+    Docker images form a <strong>D</strong>irect <strong>A</strong>cyclic <strong>G</strong>raph.
   </p>
   <p>
-    Each layer is cached (possibly) reused by other images.
+    Each layer is cached (possibly) and reused by other images.
   </p>
   <p>
-    This means that if multiple images derive from <code class='inline'>debian:wheezy</code>
-    that particular image is shared by all of them (thus downloaded once)
+    This means that if multiple images derive from <code class='inline'>debian:wheezy</code>,
+    that particular image is shared by all of them (thus downloaded once).
   </p>
   <p>
      Images are pushed/pull to/from the docker hub.
@@ -168,7 +168,10 @@ $ docker images --tree
 <slide>
   <h2>Let's build a ruby2 image</h2>
 <p>
-  Ubuntu 14.04 image has no ruby at all. Repos have ruby 1.9
+  Ubuntu 14.04 image has no ruby at all. Repos have ruby <code class='inline'>1.9</code>.
+</p>
+<p>
+  Let's create an image with <code class='inline'>2.1</code> as default.
 </p>
 
 <p>Dockerfile:</p>
@@ -306,7 +309,7 @@ rubyday/ruby         2.1        b337a5c538f3        About a minute ago  236.9 MB
 </slide>
 
 <slide>
-  <h2>..one more thing</h2>
+  <h2>... one more thing</h2>
   <p>
     We probably want <code class='inline'>-dev</code> packages and <code class='inline'>bundle</code>
   </p>
@@ -356,7 +359,7 @@ RUN gem install bundle
 <slide>
   <h2>A word on linking</h2>
   <p>
-    In docker, we can access service(s) running in other container(s) via <strong>linking</strong>
+    In docker, we can access service(s) running in other container(s) via <strong>linking</strong>.
   </p>
   <p>
     Linking a container to another will setup some environment variables in it,
@@ -469,7 +472,7 @@ a5723351c46c        postgres:9          [...]   5432/tcp            postgres
 <slide>
   <h2>Postgres container (1)</h2>
   <p>
-    We can't just hardcode its ip address, as it defeats the purpose..
+    We can't just hardcode its ip address, as it defeats the purpose...
   </p>
   <code prism class='language-bash'>
 $ docker inspect postgres | grep NetworkSettings -A 9
@@ -532,6 +535,7 @@ $ docker run --rm --name todoapp -t rubyday/todo
   <code prism class='language-clike'>
 $ docker run --rm --link postgres:db --name todoapp \
   -t rubyday/todo /bin/bash -c 'env'
+
 DB_ENV_PGDATA=/var/lib/postgresql/data
 DB_NAME=/todoapp/db
 DB_PORT_5432_TCP_ADDR=172.17.0.4
@@ -690,14 +694,14 @@ todo_web_1   bundle exec rails server   Up      49173->3000/tcp
     Leverage the cache.
   </p>
   <code prism class='language-bash'>
-    $ time docker build -t rubyday/todo .
-    # ==>	0m1.384s
-    $ touch app/models/user.rb && time docker build -t rubyday/todo .
-    # ==> 0m4.835s
+$ time docker build -t rubyday/todo .
+# ==>	0m1.384s
+$ touch app/models/user.rb && time docker build -t rubyday/todo .
+# ==> 0m4.835s
 
-    # Move the ADD . statement above bundle, then rebuild from scratch
-    $ touch app/model/user.rb && time docker build -t rubyday/todo .
-    # ==> 1m54.277s
+# Move the ADD . statement above bundle, then rebuild from scratch
+$ touch app/model/user.rb && time docker build -t rubyday/todo .
+# ==> 1m54.277s
   </code>
 </slide>
 
@@ -707,7 +711,7 @@ todo_web_1   bundle exec rails server   Up      49173->3000/tcp
     Choose your storage driver wisely.
   </p>
   <p>
-    <code class='inline'>devicemapper</code> is slower. <code class='inline'>AUFS</code> works ok
+    <code class='inline'>devicemapper</code> is slower. <code class='inline'>AUFS</code> works ok.
   </p>
   <p>
     <code class='inline'>BTRFS</code> is ... well... <strike>btrfs</strike> the <em>future</em>.
@@ -766,7 +770,7 @@ todo_web_1   bundle exec rails server   Up      49173->3000/tcp
   </p>
   <p>
     Both <code class='inline'>upstart</code> or <code class='inline'>systemd</code> are good at it.<br />
-    run containers without the <code class='inline'>-d</code>
+    Run containers without the <code class='inline'>-d</code>.
   </p>
 </slide>
 
@@ -787,7 +791,7 @@ todo_web_1   bundle exec rails server   Up      49173->3000/tcp
 <slide>
   <h2>Shameless plug</h2>
   <p>
-    These slides are made with <span class='big'><a href='https://github.com/Granze/applause'><code class='inline'>applause: https://github.com/Granze/applause</code></a></span>
+    These slides were made with <span class='big'><a href='https://github.com/Granze/applause'><code class='inline'>applause https://github.com/Granze/applause</code></a></span>
   </p>
   <p>
     Go check it out, it's <strong>AWESOME!</strong>
