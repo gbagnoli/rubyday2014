@@ -1,0 +1,799 @@
+<slide class='cover'>
+<h1>Streamline your dev env with Docker <span>Giacomo Bagnoli, #RUBYDAY2014</span></h1>
+</slide>
+
+<slide>
+
+  <h2><code class='inline'>WHOAMI</code></h2>
+  <img class="center media fright" src='images/me.jpg' alt='Giacomo Bagnoli'/>
+  <p class='big'>
+    Giacomo Bagnoli
+  </p>
+
+  <p>
+    Currently Backend Engineer at <a href='http://www.gild.com'>Gild</a>
+  </p>
+  <p>
+    Previously at <a href='http://www.a9.com'>Amazon</a> and <a href='https://twitter.com/asidev'>Asidev</a>
+  </p>
+
+  <ul>
+    <li>
+      <a href='https://twitter.com/gbagnoli'>Twitter: @gbagnoli</a>
+    </li>
+    <li>
+      <a href='https://github.com/gbagnoli'>Github: gbagnoli</a>
+    </li>
+    <li>
+      <a href='http://about.me/gbagnoli'>about.me/gbagnoli</a>
+    </li>
+  </ul>
+</slide>
+
+<slide>
+  <h2>What's wrong with my dev environment?</h2>
+  <p>Nothing in particular. It's <strong>not*</strong> broken, so let's fix it.</p>
+  <img class="center media" src="images/streamline.png" alt="Streamline"/>
+  <p class="light">* conditions apply</p>
+</slide>
+
+<slide bg-img="snowflakes.jpg" credits="https://www.flickr.com/photos/amagill/4223790595/">
+  <h2>What's wrong with my dev environment?</h2>
+  <p class='big'>Your development<br /> environment is probably <br/>
+  a beautiful, unique<br/> <strong>snowflake</strong></p>
+</slide>
+
+<slide>
+  <h2>What's Docker, anyway?!?</h2>
+
+  <p>Open source platform</p>
+  <img class="center media fright" src='images/docker.png' alt='Docker logo'/>
+  <ul>
+    <li>Docker Engine</li>
+
+      <ul>
+        <li>Container management runtime</li>
+        <li>Packaging tools for images</li>
+      </ul>
+
+    <li>Docker Hub</li>
+  </ul>
+</slide>
+
+<slide>
+  <h2>Containers, uh?</h2>
+  <img class="center media fright" src='images/containers.jpg' alt='Containers'/>
+
+  <ul>
+    <li>Operating system-level virtualization*</li>
+    <li>Runs multiple isolated <strong>linux</strong> systems</li>
+    <li>On a single host, with a single kernel</li>
+    <li>No <code class="inline">/sbin/init</code>, no device emulation</li>
+    <li>Think them as <code class="inline">chroot</code> on steroids</li>
+  </ul>
+
+  <p>&nbsp;</p>
+
+  <ul>
+    <li>Isolation provided by linux <code class="inline">cgroups</code> and <code class="inline">namespaces</code></li>
+    <li>Resource limiting and prioritization via <code class="inline">cgroups</code></li>
+    <li>Resource usage accounting via <code class="inline">cgroups</code></li>
+  </ul>
+
+  <p>&nbsp;</p>
+  <p class="light">* not a virtualization method, containers != VM</p>
+</slide>
+
+<slide>
+  <h2>Docker Images (0)</h2>
+  <img class="center media fright" src='images/docker-images.png' alt='Docker Images'/>
+  <p>
+    <em>Portable</em>, <strong>read-only</strong> layers.
+  </p>
+  <p>
+    Images are composed at run-time to form the container root FS using an union filesystem.
+  </p>
+  <p>
+    Processes tricked to see the filesystem as R/W.
+  </p>
+  <p>
+    The writable layer is discarded if the container is not <strong>committed</strong>.
+  </p>
+  <p>
+    The read-only and portable properties are <strong>important</strong> as they
+    enable sharing (via the docker hub).
+  </p>
+</slide>
+
+<slide>
+  <h2>Docker Images (1)</h2>
+  <img class="center media fright" src='images/docker-dag.png' alt='Docker DAG'/>
+  <p>
+    Docker images form a <strong>D</strong>irect <strong>A</strong>cyclic <strong>G</strong>raph.
+  </p>
+  <p>
+    Each layer is cached (possibly) and reused by other images.
+  </p>
+  <p>
+    This means that if multiple images derive from <code class='inline'>debian:wheezy</code>,
+    that particular image is shared by all of them (thus downloaded once).
+  </p>
+  <p>
+     Images are pushed/pull to/from the docker hub.
+  </p>
+</slide>
+
+<slide>
+  <h2>Docker Images (2)</h2>
+<code prism class='language-bash'>
+$ docker pull ubuntu:14.04
+$ docker pull ubuntu:12.04
+$ docker pull redis:2.8.13
+$ docker pull debian:wheezy
+$ docker pull mongo:2.6.4
+
+$ docker images
+REPOSITORY   TAG           IMAGE ID            CREATED             VIRTUAL SIZE
+redis        2.8.13        dd52dc9c8f76        9 minutes ago       98.44 MB
+mongo        2.6.4         dd1f260c0731        12 minutes ago      391.2 MB
+debian       wheezy        9cdcc6025135        18 hours ago        85.19 MB
+ubuntu       14.04         96864a7d2df3        2 days ago          204.4 MB
+ubuntu       12.04         ec966722cde4        2 days ago          103.8 MB
+  </code>
+</slide>
+
+<slide>
+  <h2>Docker Images (3)</h2>
+  <code prism class='language-bash'>
+$ docker images --tree
+└─511136ea3c5a Virtual Size: 0 B
+  └─b37448882294 Virtual Size: 85.19 MB
+    └─9cdcc6025135 Virtual Size: 85.19 MB Tags: debian:wheezy
+      ├─e365f7cdb352 Virtual Size: 85.52 MB
+      │ └─b15940870e43 Virtual Size: 85.52 MB
+
+      │             └─22ad4fc6b16f Virtual Size: 98.44 MB
+      │               └─bd1e22dd175d Virtual Size: 98.44 MB
+      │                 └─3b1ce200fdad Virtual Size: 98.44 MB
+      │                   └─dd52dc9c8f76 Virtual Size: 98.44 MB Tags: redis:2.8.13
+      └─49fd1ae472a8 Virtual Size: 85.52 MB
+        └─6c203838fd07 Virtual Size: 99.62 MB
+
+                      └─b1cd74f30329 Virtual Size: 391.2 MB
+                        └─9d0a3438646f Virtual Size: 391.2 MB
+                          └─dd1f260c0731 Virtual Size: 391.2 MB Tags: mongo:2.6.4
+  </code>
+</slide>
+
+<slide>
+  <h2>Let's build a ruby2 image</h2>
+<p>
+  Ubuntu 14.04 image has no ruby at all. Repos have ruby <code class='inline'>1.9</code>.
+</p>
+<p>
+  Let's create an image with <code class='inline'>2.1</code> as default.
+</p>
+
+<p>Dockerfile:</p>
+<code prism class='language-bash'>
+FROM ubuntu:14.04
+MAINTAINER Giacomo Bagnoli &lt;gbagnoli@gmail.com&gt;
+
+RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" > \
+    /etc/apt/sources.list.d/ruby-ng.list
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C3173AA6
+RUN apt-get update
+RUN apt-get install -y ruby2.1
+</code>
+
+Build!
+<code prism class='language-bash'>
+$ docker build --rm -t rubyday/ruby:2.1 .
+</code>
+</slide>
+
+<slide>
+  <h2>Ruby2 image</h2>
+  <p>
+    Each directive in the <code class="inline">Dockerfile</code> adds a layer
+  </p>
+  <code prism class='language-bash'>
+$ docker images --tree
+
+└─96864a7d2df3 Virtual Size: 204.4 MB Tags: ubuntu:14.04
+  └─8f1b6341c5be Virtual Size: 204.4 MB                                 # MAINTAINER
+    └─d323cc59da91 Virtual Size: 204.4 MB                               # RUN
+      └─724a6664d97a Virtual Size: 204.4 MB                             # RUN
+        └─8614dab05fbe Virtual Size: 224.8 MB                           # RUN
+          └─d7ae4a198781 Virtual Size: 257.2 MB Tags: rubyday/ruby:2.1  # RUN
+  </code>
+
+  <code prism class='language-bash'>
+$ docker run -t rubyday/ruby:2.1 ruby -v
+ruby 2.1.2p95 (2014-05-08 revision 45877) [x86_64-linux-gnu]
+  </code>
+
+  <p>
+    Woah, 53Mb. <code class='inline'>apt-get update</code> adds 20Mb to the image.
+  </p>
+</slide>
+
+<slide>
+  <h2>I tried...</h2>
+  <p>
+    Let's remove apt-get files by adding another RUN statement
+  </p>
+  <code prism class='language-bash'>
+diff --git a/ruby2/Dockerfile b/ruby2/Dockerfile
+index dd37dcb..2b9c105 100644
+--- a/ruby2/Dockerfile
++++ b/ruby2/Dockerfile
+@@ -8,3 +8,4 @@
+RUN echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" > /
+ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C3173AA6
+ RUN apt-get update
+ RUN apt-get install -y ruby2.1
++RUN rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
+  </code>
+
+</slide>
+
+<slide>
+  <h2>... grumpy cat says</h2>
+  <img class="center media" src='images/no.jpg' alt='Grumpy cat says no'/>
+</slide>
+
+<slide>
+  <h2>Layers..</h2>
+  <code prism class='language-bash'>
+$ docker images --tree
+
+└─96864a7d2df3 Virtual Size: 204.4 MB Tags: ubuntu:14.04
+  └─8f1b6341c5be Virtual Size: 204.4 MB                                   # MAINTAINER
+    └─d323cc59da91 Virtual Size: 204.4 MB                                 # RUN
+      └─724a6664d97a Virtual Size: 204.4 MB                               # RUN
+        └─8614dab05fbe Virtual Size: 224.8 MB                             # RUN
+          └─d7ae4a198781 Virtual Size: 257.2 MB                           # RUN
+            └─b8bb3ce3008e Virtual Size: 257.2 MB Tags: rubyday/ruby:2.1  # RUN
+  </code>
+
+  <p>
+    Remember that every directive adds a layer. Layers are read only.
+  </p>
+</slide>
+
+<slide>
+  <h2>Let's try once more</h2>
+  Let's rewrite the <code class="inline">Dockerfile</code>
+  <code prism class='language-bash'>
+FROM ubuntu:14.04
+MAINTAINER Giacomo Bagnoli &lt;gbagnoli@gmail.com&gt;
+
+RUN \
+ echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" \
+    &gt; /etc/apt/sources.list.d/ruby-ng.list && \
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C3173AA6 && \
+    apt-get update && \
+    apt-get install -y ruby2.1 && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
+  </code>
+</slide>
+
+<slide>
+  <h2>Rebuild</h2>
+  Build:
+  <code prism class='language-bash'>
+$ docker build --rm -t rubyday/ruby:2.1 .
+  </code>
+
+  <code prism class='language-bash'>
+$ docker images
+REPOSITORY           TAG        IMAGE ID            CREATED             VIRTUAL SIZE
+rubyday/ruby         2.1        b337a5c538f3        About a minute ago  236.9 MB
+  </code>
+
+  <code prism class='language-bash'>
+└─96864a7d2df3 Virtual Size: 204.4 MB Tags: ubuntu:14.04
+  └─86ae939e2da3 Virtual Size: 204.4 MB                         # MAINTAINER
+    └─b337a5c538f3 Virtual Size: 236.9 MB Tags: gild/ruby:2.1   # RUN
+  </code>
+
+  <p class="big">
+    yay!
+  </p>
+</slide>
+
+<slide>
+  <h2>Pat me on the back</h2>
+  <img class="center media" src='images/success.jpg' alt='Yay!'/>
+</slide>
+
+<slide>
+  <h2>... one more thing</h2>
+  <p>
+    We probably want <code class='inline'>-dev</code> packages and <code class='inline'>bundle</code>
+  </p>
+  <p>
+    Let's update the <code class='inline'>Dockerfile</code>
+  </p>
+  <code prism class='language-bash'>
+FROM ubuntu:14.04
+
+MAINTAINER Giacomo Bagnoli <gbagnoli@gmail.com>
+RUN \
+ echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" \
+    > /etc/apt/sources.list.d/ruby-ng.list
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C3173AA6
+RUN apt-get update && \
+    apt-get install -y build-essential && \
+    apt-get install -y ruby2.1 ruby2.1-dev && \
+    update-alternatives --set ruby /usr/bin/ruby2.1 && \
+    update-alternatives --set gem /usr/bin/gem2.1 && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
+RUN gem install bundle
+  </code>
+</slide>
+
+<slide>
+  <h2>Time for Rails</h2>
+  <img class="center media fright" src='images/todo.png' alt='TODO list'/>
+  <p>
+    Let's try creating a <code class='inline'>Dockerfile</code> for a rails app.
+  </p>
+  <p>
+    The app is a <strike>random</strike> simple TODO list application found on Github.
+  </p>
+
+  <p>
+    It's a rails4 application that uses SQL, nothing fancy.
+  </p>
+  <p>
+    Let's assume we are developing this app targeting postgresql.
+  </p>
+  <p>
+    Github url: <br/>
+    <code class='inline'>https://github.com/gbagnoli/todo-rails4-angularjs</code>
+  </p>
+</slide>
+
+<slide>
+  <h2>A word on linking</h2>
+  <p>
+    In docker, we can access service(s) running in other container(s) via <strong>linking</strong>.
+  </p>
+  <p>
+    Linking a container to another will setup some environment variables in it,
+    allowing the container to discover and connect to the service.
+  </p>
+  <p>
+    We will use this feature to access <code class='inline'>postgres</code> from our app container.
+  </p>
+</slide>
+
+<slide>
+  <h2>The Dockerfile</h2>
+  <div class="scaled">
+    <code prism class='language-bash'>
+FROM rubyday/ruby:2.1
+MAINTAINER Giacomo Bagnoli &lt;gbagnoli@gmail.com&gt;
+
+RUN adduser todo --home /opt/todo --shell /bin/bash --disabled-password --gecos ""
+RUN apt-get update && \
+    apt-get install -y libpq-dev nodejs && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
+
+ADD Gemfile /opt/todo/
+ADD Gemfile.lock /opt/todo/
+RUN chown -R todo:todo /opt/todo
+RUN su -c "D=/opt/todo/bundle; mkdir $D && bundle install --deployment --path $D"\
+  -s /bin/bash -l todo
+
+WORKDIR /opt/todo
+EXPOSE 3000
+ADD . /opt/todo
+RUN chown -R todo:todo /opt/todo
+
+USER todo
+ENTRYPOINT ["/bin/bash", "/opt/todo/bin/docker_entrypoint.sh"]
+CMD ["bundle", "exec", "rails", "server"]
+    </code>
+  </div>
+</slide>
+
+<slide>
+  <h2>Dockerfile explained (0)</h2>
+  <code prism class='language-bash'>
+FROM rubyday/ruby:2.1
+
+MAINTAINER Giacomo Bagnoli &lt;gbagnoli@gmail.com&gt;
+  </code>
+</slide>
+
+<slide>
+  <h2>Dockerfile explained (1)</h2>
+  <code prism class='language-bash'>
+RUN adduser todo --home /opt/todo --shell /bin/bash --disabled-password --gecos ""
+
+RUN apt-get update && \
+    apt-get install -y libpq-dev nodejs && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
+  </code>
+</slide>
+
+<slide>
+  <h2>Dockerfile explained (2)</h2>
+  <code prism class='language-bash'>
+ADD Gemfile /opt/todo/
+ADD Gemfile.lock /opt/todo/
+RUN chown -R todo:todo /opt/todo
+RUN su -c "D=/opt/todo/bundle; mkdir $D && bundle install --deployment --path $D"\
+  -s /bin/bash -l todo
+  </code>
+</slide>
+
+<slide>
+  <h2>Dockerfile explained (3)</h2>
+  <code prism class='language-bash'>
+WORKDIR /opt/todo
+EXPOSE 3000
+ADD . /opt/todo
+RUN chown -R todo:todo /opt/todo
+  </code>
+</slide>
+
+<slide>
+  <h2>Dockerfile explained (4)</h2>
+  <code prism class='language-bash'>
+USER todo
+ENTRYPOINT ["/bin/bash", "/opt/todo/bin/docker_entrypoint.sh"]
+CMD ["bundle", "exec", "rails", "server"]
+  </code>
+</slide>
+
+<slide>
+  <h2>Postgres container (0)</h2>
+  <code prism class='language-bash'>
+$ docker pull postgres:9.3
+$ docker run -d --name postgres -t postgres:9.3
+a5723351c46ce015d585dd49f230ecb376557d0b955f233dbff3bf92f3a6721d
+$ docker ps
+CONTAINER ID        IMAGE               [...]   PORTS               NAMES
+a5723351c46c        postgres:9          [...]   5432/tcp            postgres
+  </code>
+
+  <p>
+    This container <code class='inline'>EXPOSE</code>s port <code class='inline'>5432</code>.
+  </p>
+  <p>
+    Question is, how do we connect to it?
+  </p>
+</slide>
+
+<slide>
+  <h2>Postgres container (1)</h2>
+  <p>
+    We can't just hardcode its ip address, as it defeats the purpose...
+  </p>
+  <code prism class='language-bash'>
+$ docker inspect postgres | grep NetworkSettings -A 9
+    "NetworkSettings": {
+        "Bridge": "docker0",
+        "Gateway": "172.17.42.1",
+        "IPAddress": "172.17.0.4",
+        "IPPrefixLen": 16,
+        "PortMapping": null,
+        "Ports": {
+            "5432/tcp": null
+        }
+    },
+  </code>
+</slide>
+
+<slide>
+  <h2>The wrapper script (0)</h2>
+  <p>
+    In the Dockerfile, an <code class='inline'>ENTRYPOINT</code> was specified.
+  </p>
+  <code prism class='language-bash'>
+#!/bin/bash
+
+# exit with error if a variable is unbound (not set)
+set -u
+# exit with error if a command returns a non-zero status
+set -e
+
+PGADDR=$DB_PORT_5432_TCP_ADDR
+PGPORT=$DB_PORT_5432_TCP_PORT
+PGDBNAME="${DATABASE_NAME:-todo}"
+PGUSER="${DATABASE_USER:-postgres}"
+
+# export database configuration for rails.
+export DATABASE_URL="postgresql://${PGUSER}@${PGADDR}:${PGPORT}/${PGDBNAME}"
+
+# exec what the user wants
+exec "$@"
+  </code>
+
+  <p>
+    <code class='inline'>DB_PORT_5432_TCP_*</code> variables are injected by docker <br/>
+  </p>
+</slide>
+
+<slide>
+  <h2>The wrapper script (1)</h2>
+  <p>
+    Trying to execute the container will throw an error (it's a feature!)
+  </p>
+  <code prism class='language-bash'>
+$ docker run --rm --name todoapp -t rubyday/todo
+/opt/todo/bin/docker_entrypoint.sh: line 6: DB_PORT_5432_TCP_ADDR: unbound variable
+  </code>
+</slide>
+
+<slide>
+  <h2>Linking!</h2>
+  <code prism class='language-clike'>
+$ docker run --rm --link postgres:db --name todoapp \
+  -t rubyday/todo /bin/bash -c 'env'
+
+DB_ENV_PGDATA=/var/lib/postgresql/data
+DB_NAME=/todoapp/db
+DB_PORT_5432_TCP_ADDR=172.17.0.4
+DB_PORT=tcp://172.17.0.4:5432
+DB_ENV_LANG=en_US.utf8
+DB_PORT_5432_TCP=tcp://172.17.0.4:5432
+DB_ENV_PG_MAJOR=9.3
+DB_PORT_5432_TCP_PORT=5432
+DB_PORT_5432_TCP_PROTO=tcp
+DB_ENV_PG_VERSION=9.3.5-1.pgdg70+1
+DATABASE_URL=postgresql://postgres@172.17.0.4:5432/todo
+</code>
+  <ul>
+    <li>
+      <code class='inline'>--link postgres:db</code> link container named <strong>postgres</strong> with alias <strong>db</strong>
+    </li>
+    <li>
+      alias <strong>db</strong> tells docker to prefix all variables with <code class='inline'>DB</code>
+    </li>
+  </ul>
+</slide>
+
+<slide>
+  <h2>Start!</h2>
+  <p>
+    Pretty much standard business
+  </p>
+  <code prism class='language-bash'>
+$ docker run --rm --link postgres:db -t rubyday/todo bundle exec rake db:create
+$ docker run --rm --link postgres:db -t rubyday/todo bundle exec rake db:schema:load
+
+$ docker run --link postgres:db --name todoapp -p 3000:3000 -d -t rubyday/todo
+7540f7647309110c53d2349cf7c68d1388e0f43de3d5904396fa2bb4041b6b28
+
+$ docker ps
+CONTAINER ID  IMAGE                [..] PORTS                  NAMES
+7540f7647309  rubyday/todo:latest  [..] 0.0.0.0:3000-&gt;3000/tcp todoapp
+a5723351c46c  postgres:9           [..] 5432/tcp               postgres,todoapp/db
+  </code>
+  <p>
+    <code class='inline'>-p 3000:3000</code> creates a port forward from the host to the container
+  </p>
+</slide>
+
+<slide>
+  <h2>Does it work?</h2>
+  <code prism class='language-http'>
+$ netstat -lnp | grep 3000
+tcp6       0      0 :::3000      :::*    LISTEN      3645/docker-proxy
+
+$ curl -v http://localhost:3000
+* Connected to localhost (127.0.0.1) port 3000 (#0)
+> GET / HTTP/1.1
+> User-Agent: curl/7.35.0
+> Host: localhost:3000
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+[...]
+  </code>
+
+  <p class='big'>
+    Good.
+  </p>
+</slide>
+
+<slide>
+  <h2>Too much work. Let's Automate</h2>
+  <img class="center media fright" style='margin-top:120px' src='images/fig.png' alt='FIG'/>
+  <p>
+    Enters <a href='http://www.fig.sh/'><code class='inline'>FIG</code></a>.
+  </p>
+  <p>
+    <code class='inline'>fig.yml</code>:
+  </p>
+  <code prism class='language-yaml'>
+web:
+    build: .
+    links:
+      - db
+    ports:
+      - "3000:3000"
+db:
+    image: postgres:9.3
+    ports:
+      - "5432"
+  </code>
+</slide>
+
+<slide>
+  <h2>..small tweak for fig</h2>
+  <code prism class='language-diff'>
+diff --git a/bin/docker_entrypoint.sh b/bin/docker_entrypoint.sh
+index 0775ece..b69980c 100644
+--- a/bin/docker_entrypoint.sh
++++ b/bin/docker_entrypoint.sh
+@@ -3,8 +3,8 @@
+ set -u
+ set -e
+
+-PGADDR=$DB_PORT_5432_TCP_ADDR
+-PGPORT=$DB_PORT_5432_TCP_PORT
++PGADDR=$DB_1_PORT_5432_TCP_ADDR
++PGPORT=$DB_1_PORT_5432_TCP_PORT
+ PGDBNAME="${DATABASE_NAME:-todo}"
+ PGUSER="${DATABASE_USER:-postgres}"
+  </code>
+</slide>
+
+<slide>
+  <h2>Profit!</h2>
+  <code prism class='language-bash'>
+$ fig up   # familiar, huh?
+$ fig run web bundle exec rake db:create
+$ fig run web bundle exec rake db:schema:load
+
+$ netstat -lnp | grep 3000
+tcp6       0      0 :::3000      :::*    LISTEN      24727/docker-proxy
+
+$ curl -v http://localhost:3000
+* Connected to localhost (127.0.0.1) port 3000 (#0)
+> GET / HTTP/1.1
+> User-Agent: curl/7.35.0
+> Host: localhost:3000
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+[...]
+  </code>
+</slide>
+
+<slide>
+  <h2>More fig commands</h2>
+  <code prism class='language-bash'>
+$ fig ps
+   Name              Command            State        Ports
+---------------------------------------------------------------
+todo_db_1    postgres                   Up      49160->5432/tcp
+todo_web_1   bundle exec rails server   Up      3000->3000/tcp
+
+# if we remove the :3000 for the web port in the fig.yml
+$ fig scale web=2
+Starting todo_web_2...
+$ fig ps
+   Name              Command            State        Ports
+---------------------------------------------------------------
+todo_db_1    postgres                   Up      49172->5432/tcp
+todo_web_2   bundle exec rails server   Up      49174->3000/tcp
+todo_web_1   bundle exec rails server   Up      49173->3000/tcp
+  </code>
+</slide>
+
+<slide>
+  <h2>Very Opinionated Tips</h2>
+  <p class="big">
+    Leverage the cache.
+  </p>
+  <code prism class='language-bash'>
+$ time docker build -t rubyday/todo .
+# ==>	0m1.384s
+$ touch app/models/user.rb && time docker build -t rubyday/todo .
+# ==> 0m4.835s
+
+# Move the ADD . statement above bundle, then rebuild from scratch
+$ touch app/model/user.rb && time docker build -t rubyday/todo .
+# ==> 1m54.277s
+  </code>
+</slide>
+
+<slide>
+  <h2>Very Opinionated Tips</h2>
+  <p class="big tips">
+    Choose your storage driver wisely.
+  </p>
+  <p>
+    <code class='inline'>devicemapper</code> is slower. <code class='inline'>AUFS</code> works ok.
+  </p>
+  <p>
+    <code class='inline'>BTRFS</code> is ... well... <strike>btrfs</strike> the <em>future</em>.
+  </p>
+</slide>
+
+<slide>
+  <h2>Very Opinionated Tips</h2>
+  <p class="big tips">
+    Always tag your image(s). <br /> Always <code class='inline'>pull</code> supplying a tag. <br/>
+    Always use a tag for <code class='inline'>FROM</code>.
+  </p>
+  <p>
+    Don't rely on <code class='inline'>:latest</code> tag.
+  </p>
+</slide>
+
+<slide>
+  <h2>Very Opinionated Tips</h2>
+  <p class="big tips">
+    If possible, avoid run+commit. <br /> Prefer <code class='inline'>Dockerfile</code>s.
+  </p>
+  <p>
+    Waaaaaay more reproducible.
+  </p>
+</slide>
+
+<slide>
+  <h2>Very Opinionated Tips</h2>
+  <p class="big tips">
+    Installing ssh into the container is <strong>not</strong> clever.
+  </p>
+
+  <p>
+    <code class='inline'>NSINIT</code> is your friend (<a href='https://gist.github.com/ubergarm/ed42ebbea293350c30a6'>gist</a>)
+  </p>
+  <p>
+    <a href='https://gist.github.com/ubergarm/ed42ebbea293350c30a6'>https://gist.github.com/ubergarm/ed42ebbea293350c30a6</a>
+  </p>
+</slide>
+
+<slide>
+  <h2>Very Opinionated Tips</h2>
+  <p class="big tips">
+    One process per container. Don't fork.
+  </p>
+  <p>
+    Don't doublefork either. Stay in foreground.
+  </p>
+</slide>
+
+<slide>
+  <h2>Very Opinionated Tips</h2>
+  <p class="big tips">
+    Use a process manager.
+  </p>
+  <p>
+    Both <code class='inline'>upstart</code> or <code class='inline'>systemd</code> are good at it.<br />
+    Run containers without the <code class='inline'>-d</code>.
+  </p>
+</slide>
+
+<slide>
+  <h2>THANKS!</h2>
+  <p class='big abs-center'>
+    That's all. For now.
+  </p>
+</slide>
+
+<slide>
+  <h2>Questions?</h2>
+  <p class='big abs-center'>
+    QUESTIONS?
+  </p>
+
+</slide>
+<slide>
+  <h2>Shameless plug</h2>
+  <p>
+    These slides were made with <span class='big'><a href='https://github.com/Granze/applause'><code class='inline'>applause https://github.com/Granze/applause</code></a></span>
+  </p>
+  <p>
+    Go check it out, it's <strong>AWESOME!</strong>
+  </p>
+</slide>
