@@ -149,6 +149,15 @@ a {
   color: #d26b36;
 }
 
+#nav {
+  position: absolute;
+  left: -999em;
+}
+
+html {
+  cursor: none;
+}
+
 ul {
     margin: 0.75em 0;
     padding: 0 1em;

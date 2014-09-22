@@ -22,26 +22,26 @@ end
 
 visit '/' # visit the first page
 
+h = 720
+w = 1280
 # change the size of the window
 if Capybara.current_driver == :webkit
-  page.driver.resize_window(1024,768)
+  page.driver.resize_window(w,h)
 end
 
 sleep 3 # Allow the page to render correctly
-page.save_screenshot("./screenshots/screenshot_000.png", width: 1024, height: 768) # take screenshot of first page
+page.save_screenshot("./screenshots/screenshot_000.png", width: w, height: h) # take screenshot of first page
 
 # calculate the number of slides in the deck
-slide_count = page.body.scan(%r{slide}).size
+slide_count = page.body.scan(%r{section class="slide}).size
 puts slide_count
+
 
 (slide_count - 1).times do |time|
   slide_number = time + 1
-
-  # keypress_script = "//FIXME" # 
-  # page.execute_script(keypress_script) # run the script to transition to next slide
-  
+  page.find('#nav').trigger(:click)
   sleep 1 # wait for the slide to fully transition
-  page.save_screenshot("./screenshots/screenshot_#{slide_number.to_s.rjust(3,'0')}.png", width: 1024, height: 768)
+  page.save_screenshot("./screenshots/screenshot_#{slide_number.to_s.rjust(3,'0')}.png", width: w, height: h)
   print "#{slide_number}. "
 end
 
