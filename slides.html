@@ -2,21 +2,32 @@
 <h1>Streamline your dev env with Docker <span>Giacomo Bagnoli, #RUBYDAY2014</span></h1>
 </slide>
 
-<slide markdown>
-  ## `whoami`
+<slide>
 
-  Started exploring cgroups in 2009. Used `lxc` with `pacemaker` in production in 2010-2012.
+  <h2><code class='inline'>WHOAMI</code></h2>
+  <img class="center media fright" src='images/me.jpg' alt='Giacomo Bagnoli'/>
+  <p class='big'>
+    Giacomo Bagnoli
+  </p>
 
-  Got excited by Docker since first release. Using it at work since June (in prod from August).
+  <p>
+    Currently Backend Engineer at <a href='http://www.gild.com'>Gild</a>
+  </p>
+  <p>
+    Previously at <a href='http://www.a9.com'>Amazon</a> and <a href='https://twitter.com/asidev'>Asidev</a>
+  </p>
 
-  Currently Backend Engineer at [Gild](http://www.gild.com)
-
-  Previously at [Amazon](http://www.a9.com/) and [Asidev](https://twitter.com/asidev)
-
-
-  * [Twitter: @gbagnoli](https://twitter.com/gbagnoli)
-  * [Github: gbagnoli](https://github.com/gbagnoli)
-  * [Facebook: giacomo.bagnoli](https://www.facebook.com/giacomo.bagnoli)
+  <ul>
+    <li>
+      <a href='https://twitter.com/gbagnoli'>Twitter: @gbagnoli</a>
+    </li>
+    <li>
+      <a href='https://github.com/gbagnoli'>Github: gbagnoli</a>
+    </li>
+    <li>
+      <a href='http://about.me/gbagnoli'>about.me/gbagnoli</a>
+    </li>
+  </ul>
 </slide>
 
 <slide>
@@ -28,7 +39,7 @@
 
 <slide bg-img="snowflakes.jpg" credits="https://www.flickr.com/photos/amagill/4223790595/">
   <h2>What's wrong with my dev environment?</h2>
-  <p class='big'>Youd development<br /> environment is probably <br/>
+  <p class='big'>Your development<br /> environment is probably <br/>
   a beautiful, unique<br/> <strong>snowflake</strong></p>
 </slide>
 
@@ -371,7 +382,7 @@ RUN apt-get update && \
 ADD Gemfile /opt/todo/
 ADD Gemfile.lock /opt/todo/
 RUN chown -R todo:todo /opt/todo
-RUN su -c "mkdir /opt/todo/bundle && bundle install --deployment --path /opt/todo/bundle"\
+RUN su -c "D=/opt/todo/bundle; mkdir $D && bundle install --deployment --path $D"\
   -s /bin/bash -l todo
 
 WORKDIR /opt/todo
@@ -412,7 +423,7 @@ RUN apt-get update && \
 ADD Gemfile /opt/todo/
 ADD Gemfile.lock /opt/todo/
 RUN chown -R todo:todo /opt/todo
-RUN su -c "mkdir /opt/todo/bundle && bundle install --deployment --path /opt/todo/bundle"\
+RUN su -c "D=/opt/todo/bundle; mkdir $D && bundle install --deployment --path $D"\
   -s /bin/bash -l todo
   </code>
 </slide>
@@ -581,73 +592,189 @@ $ curl -v http://localhost:3000
 < HTTP/1.1 200 OK
 [...]
   </code>
-</slide>
-<!--
-<slide>
-  <h2>Why another presentation framework?</h2>
-  <p>There are plenty of presentation frameworks made with HTML, CSS and Javascript around. So why we need another one?</p>
-  <p>We probably don't. I've started this project just because I wanted to improve my Angular JS skills.</p>
-  <blockquote><code class="inline">blockquote</code> Lorem ipsum dolor sit amet, consectetur adipisicing elit</blockquote>
+
+  <p class='big'>
+    Good.
+  </p>
 </slide>
 
 <slide>
-  <h2>Presenter mode</h2>
-  <table>
-    <tr>
-      <th>Normal view</th>
-      <th>Presenter mode</th>
-    </tr>
-    <tr>
-      <td><img src="images/slide-single.gif" alt=""/></td>
-      <td><img src="images/slide-presenter.gif" alt=""/></td>
-    </tr>
-  </table>
-  <p>In presenter mode, you can see the current and the upcoming slide.</p>
-  <p>To enter presenter mode, you just need to attach <code class="inline">?preview</code> in your URL. <a href="?preview">Try it out!</a></p>
-  <p>Slides are synchronized between tabs.</p>
+  <h2>Too much work. Let's Automate</h2>
+  <img class="center media fright" style='margin-top:120px' src='images/fig.png' alt='FIG'/>
+  <p>
+    Enters <a href='http://www.fig.sh/'><code class='inline'>FIG</code></a>.
+  </p>
+  <p>
+    <code class='inline'>fig.yml</code>:
+  </p>
+  <code prism class='language-yaml'>
+web:
+    build: .
+    links:
+      - db
+    ports:
+      - "3000:3000"
+db:
+    image: postgres:9.3
+    ports:
+      - "5432"
+  </code>
 </slide>
 
 <slide>
-  <h2>Code highlighting</h2>
+  <h2>..small tweak for fig</h2>
+  <code prism class='language-diff'>
+diff --git a/bin/docker_entrypoint.sh b/bin/docker_entrypoint.sh
+index 0775ece..b69980c 100644
+--- a/bin/docker_entrypoint.sh
++++ b/bin/docker_entrypoint.sh
+@@ -3,8 +3,8 @@
+ set -u
+ set -e
 
-    <code prism class="language-javascript">
-      applause.directive('slide', function (Appdata) {
-        return {
-          restrict: 'EA',
-          transclude: true,
-          replace: true,
-          scope: {}
-        };
-      });
-    </code>
-  <p>Applause uses <a href="http://prismjs.com/">Prism JS</a> for code highlighting. You need to add the "language-*" class and the "prism" attribute to your element:
-    <br><code class="inline">&lt;div <strong>prism class="language-javascript"</strong>&gt;your code here&lt;/div&gt;</code></p>
-</slide>
-
-<slide markdown>
-  ##Markdown content
-
-  write your slide in markdown if you like it
-
-- list item **one**
-- list item *two*
-
-Add the "markdown" attribute to the slide element `<code class="inline">&lt;slide <strong>markdown</strong>&gt;</code>`
-</slide>
-
-<slide bg-img="oscar.jpg" credits="TIME & LIFE Pictures http://life.time.com/?attachment_id=11373">
-  <h2 class="left">Auto fitting images</h2>
-  <p class="light-text">Add the "bg-img" attribute to your slide element:<br><code class="inline">&lt;slide <strong>bg-img</strong>="path/to/image"&gt;</code><br>without worrying about the image size.</p>
-  <p class="light-text">You can add credits too (with autolink)<br><code class="inline">&lt;slide bg.img="..." <strong>credits</strong>="..."&gt;</code></p>
+-PGADDR=$DB_PORT_5432_TCP_ADDR
+-PGPORT=$DB_PORT_5432_TCP_PORT
++PGADDR=$DB_1_PORT_5432_TCP_ADDR
++PGPORT=$DB_1_PORT_5432_TCP_PORT
+ PGDBNAME="${DATABASE_NAME:-todo}"
+ PGUSER="${DATABASE_USER:-postgres}"
+  </code>
 </slide>
 
 <slide>
-  <h3 class="abs-center">Add<br>class="abs-center"<br>to an item to center it</h3>
+  <h2>Profit!</h2>
+  <code prism class='language-bash'>
+$ fig up   # familiar, huh?
+$ fig run web bundle exec rake db:create
+$ fig run web bundle exec rake db:schema:load
+
+$ netstat -lnp | grep 3000
+tcp6       0      0 :::3000      :::*    LISTEN      24727/docker-proxy
+
+$ curl -v http://localhost:3000
+* Connected to localhost (127.0.0.1) port 3000 (#0)
+> GET / HTTP/1.1
+> User-Agent: curl/7.35.0
+> Host: localhost:3000
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+[...]
+  </code>
 </slide>
 
 <slide>
-  <h1>Do you like that?</h1>
-  <img class="center media" src="images/slow-clap.gif" alt=""/>
-  <p class="center">Follow me on twitter <a href="https://twitter.com/granze">@granze</a></p>
+  <h2>More fig commands</h2>
+  <code prism class='language-bash'>
+$ fig ps
+   Name              Command            State        Ports
+---------------------------------------------------------------
+todo_db_1    postgres                   Up      49160->5432/tcp
+todo_web_1   bundle exec rails server   Up      3000->3000/tcp
+
+# if we remove the :3000 for the web port in the fig.yml
+$ fig scale web=2
+Starting todo_web_2...
+$ fig ps
+   Name              Command            State        Ports
+---------------------------------------------------------------
+todo_db_1    postgres                   Up      49172->5432/tcp
+todo_web_2   bundle exec rails server   Up      49174->3000/tcp
+todo_web_1   bundle exec rails server   Up      49173->3000/tcp
+  </code>
 </slide>
--->
+
+<slide>
+  <h2>Very Opinionated Tips</h2>
+  <p class="big">
+    Leverage the cache.
+  </p>
+  <code prism class='language-bash'>
+    $ time docker build -t rubyday/todo .
+    # ==>	0m1.384s
+    $ touch app/models/user.rb && time docker build -t rubyday/todo .
+    # ==> 0m4.835s
+
+    # Move the ADD . statement above bundle, then rebuild from scratch
+    $ touch app/model/user.rb && time docker build -t rubyday/todo .
+    # ==> 1m54.277s
+  </code>
+</slide>
+
+<slide>
+  <h2>Very Opinionated Tips</h2>
+  <p class="big tips">
+    Choose your storage driver wisely.
+  </p>
+  <p>
+    <code class='inline'>devicemapper</code> is slower. <code class='inline'>AUFS</code> works ok
+  </p>
+  <p>
+    <code class='inline'>BTRFS</code> is ... well... <strike>btrfs</strike> the <em>future</em>.
+  </p>
+</slide>
+
+<slide>
+  <h2>Very Opinionated Tips</h2>
+  <p class="big tips">
+    Always tag your image(s). <br /> Always <code class='inline'>pull</code> supplying a tag.
+  </p>
+  <p>
+    Don't rely on <code class='inline'>:latest</code> tag.
+  </p>
+</slide>
+
+<slide>
+  <h2>Very Opinionated Tips</h2>
+  <p class="big tips">
+    If possible, avoid run+commit. <br /> Prefer <code class='inline'>Dockerfile</code>s.
+  </p>
+  <p>
+    Waaaaaay more reproducible.
+  </p>
+</slide>
+
+<slide>
+  <h2>Very Opinionated Tips</h2>
+  <p class="big tips">
+    Installing ssh into the container is <strong>not</strong> clever.
+  </p>
+
+  <p>
+    <code class='inline'>NSINIT</code> is your friend (<a href='https://gist.github.com/ubergarm/ed42ebbea293350c30a6'>gist</a>)
+  </p>
+</slide>
+
+<slide>
+  <h2>Very Opinionated Tips</h2>
+  <p class="big tips">
+    One process per container. Don't fork.
+  </p>
+  <p>
+    Don't doublefork either. Stay in foreground.
+  </p>
+</slide>
+
+<slide>
+  <h2>Very Opinionated Tips</h2>
+  <p class="big tips">
+    Use a process manager.
+  </p>
+  <p>
+    Both <code class='inline'>upstart</code> or <code class='inline'>systemd</code> are good at it.<br />
+    run containers without the <code class='inline'>-d</code>
+  </p>
+</slide>
+
+<slide>
+  <h2>Questions?</h2>
+  <p class='big tips'>
+    QUESTIONS?
+  </p>
+  <p>
+    These slides are made with <span class='big'><a href='https://github.com/Granze/applause'><code class='inline'>applause: https://github.com/Granze/applause</code></a></span>
+  </p>
+  <p>
+    Go check it out, it's <strong>AWESOME!</strong>
+  </p>
+</slide>
