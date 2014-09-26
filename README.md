@@ -18,7 +18,7 @@ To build
 ```
 $ npm install
 $ bower install
-$ gulp watch
+$ gulp
 ```
 
 The presentation will be build under `presentation` directory
