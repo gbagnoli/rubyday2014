@@ -1,38 +1,22 @@
-# Applause
-HTML presentations powered by AngularJS
+# Streamline your dev env with docker
 
-##Features:
-- presenter mode
-- code highligthing
-- markdown support
-- auto fitting background images
-- credits + autolink helper
-- clean and simple default theme
-- configurable via JSON file
+These are the slides for the [rubyday2014](http://www.rubyday.it/) talk.
 
-##Demo: http://granze.github.io/applause/
+## Build
 
-###WARNING: this project is at an early stage of development
+The slides are made with [applause](https://github.com/Granze/applause).
+To build
 
-Anyway, if you want to try it:
+```
+$ npm install
+$ bower install
+$ gulp watch
+```
 
-- clone the project and `cd` into the folder
-- from your terminal run `npm install && bower install`
-- run `gulp watch` to launch the local server and watch your files
-- start creating your slides editing `slides.html`
+The presentation will be build under `presentation` directory
+Refer to the applause `README` for further instructions
 
-When you are done editing, run `gulp`, this will create a "presentation" folder with your compiled slides inside. Enjoy!
+## Example app
 
-##Configuration options:
-
-You need to modify `config.json`
-
-Available options:
-
-| Attribute   | Type    | Default | Description                                                                                        |
-|-------------|---------|---------|----------------------------------------------------------------------------------------------------|
-| progressBar | boolean | true    | Show/hide the progress bar                                                                         |
-| slideCount  | boolean | true    | Show/hide the slide count                                                                          |
-| counter     | boolean | true    | Show/hide the counter/countdown in presenter mode                                                  |
-| startFrom   | number  | 20      | Set the minutes for the countdown. If set to 0 the clock act like a counter instead of a countdown |
-| theme       | string  | default | Choose the theme to use                                                                            |
+The code for the example application can be found on
+[github/gbagnoli/todo-rails4-angularjs](https://github.com/gbagnoli/todo-rails4-angularjs)
